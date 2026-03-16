@@ -16,6 +16,15 @@ import fs from "node:fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const APP_VERSION = (() => {
+  try {
+    const pkgPath = path.join(process.cwd(), "package.json");
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+    return pkg?.version || "unknown";
+  } catch {
+    return "unknown";
+  }
+})();
 
 const PORT = Number(process.env.PORT || 8099);
 const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(process.cwd(), "data");
@@ -498,7 +507,33 @@ app.get("/api/results", (req, res) => {
 });
 
 app.get("/api/status", (req, res) => {
-  res.json(readStatus());
+  res.json({ ...readStatus(), appVersion: APP_VERSION });
+});
+
+app.get("/api/diagnostics", async (req, res) => {
+  try {
+    const cfg = readConfig();
+    const enabled = getEnabledTemplateIdsAndRules(cfg);
+    const queryId = Number(req.query.templateId);
+    const templateId = Number.isFinite(queryId) && queryId > 0 ? queryId : Array.from(enabled.keys())[0];
+    if (!templateId) {
+      res.status(400).json({ error: "no templateId enabled" });
+      return;
+    }
+    const dateParam = typeof req.query.date === "string" ? req.query.date : "";
+    const isoDate = /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : new Date().toISOString().slice(0, 10);
+    const html = await fetchAvailabilityForDay(templateId, isoDate);
+    const slots = parseAvailabilitiesHtml(html);
+    res.json({
+      templateId,
+      isoDate,
+      htmlLength: html.length,
+      slotCount: slots.length,
+      sample: slots.slice(0, 5),
+    });
+  } catch (e) {
+    res.status(500).json({ error: e?.message || String(e) });
+  }
 });
 
 app.post("/api/run", async (req, res) => {
@@ -526,3 +561,4 @@ app.listen(PORT, () => {
   // ensure static pages exist even before first scrape
   publishStaticAndMaybeFtp(readConfig()).catch(() => {});
 });
+

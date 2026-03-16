@@ -1,4 +1,4 @@
-const $ = (id) => document.getElementById(id);
+﻿const $ = (id) => document.getElementById(id);
 
 function todayIso() {
   const d = new Date();
@@ -239,7 +239,8 @@ async function loadStatus() {
   const next = st.nextRunAt ? new Date(st.nextRunAt).toLocaleString("de-DE") : "-";
   const running = st.timerActive ? "aktiv" : "stopp";
   const nowRunning = st.running ? "RUNNING" : "idle";
-  $("statusLine").textContent = `Status: ${running} | ${nowRunning} | last: ${last} | next: ${next}${st.lastError ? ` | error: ${st.lastError}` : ""}`;
+  const version = st.appVersion ? ` | v${st.appVersion}` : "";
+  $("statusLine").textContent = `Status: ${running} | ${nowRunning} | last: ${last} | next: ${next}${st.lastError ? ` | error: ${st.lastError}` : ""}${version}`;
 }
 
 async function loadConfig() {
