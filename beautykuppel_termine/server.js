@@ -89,15 +89,19 @@ function readHaOptions() {
   }
 }
 
-function applyHaOptions(cfg, options) {
+function applyHaOptions(cfg, options, ctx = {}) {
   if (!options || typeof options !== "object") return cfg;
 
   const next = { ...cfg };
+  const hasCfg = !!ctx.hasCfg;
+  const override = options.overrideConfig === true || !hasCfg;
 
-  if (typeof options.refreshMinutes === "number") next.refreshMinutes = options.refreshMinutes;
-  if (typeof options.useTodayWindow === "boolean") next.useTodayWindow = options.useTodayWindow;
-  if (typeof options.startDateTime === "string" && options.startDateTime) next.startDateTime = options.startDateTime;
-  if (typeof options.endDateTime === "string" && options.endDateTime) next.endDateTime = options.endDateTime;
+  if (override) {
+    if (typeof options.refreshMinutes === "number") next.refreshMinutes = options.refreshMinutes;
+    if (typeof options.useTodayWindow === "boolean") next.useTodayWindow = options.useTodayWindow;
+    if (typeof options.startDateTime === "string" && options.startDateTime) next.startDateTime = options.startDateTime;
+    if (typeof options.endDateTime === "string" && options.endDateTime) next.endDateTime = options.endDateTime;
+  }
 
   if (typeof options.staticExportEnabled === "boolean") {
     next.staticExport = { ...(next.staticExport || {}), enabled: options.staticExportEnabled };
@@ -116,9 +120,10 @@ function applyHaOptions(cfg, options) {
 
 function readConfig() {
   const defaults = defaultConfig();
-  const cfg = readJson(CONFIG_FILE, defaults);
-  const merged = { ...defaults, ...(cfg && typeof cfg === "object" ? cfg : {}) };
-  return applyHaOptions(merged, readHaOptions());
+  const cfg = readJson(CONFIG_FILE, null);
+  const hasCfg = cfg && typeof cfg === "object";
+  const merged = { ...defaults, ...(hasCfg ? cfg : {}) };
+  return applyHaOptions(merged, readHaOptions(), { hasCfg });
 }
 
 function writeConfig(cfg) {
