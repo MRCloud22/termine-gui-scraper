@@ -61,3 +61,12 @@ Ein lokales Manifest fuer Delta-Uploads liegt unter `data/ftp-manifest.json`.
 
 Die Abfrage nutzt die (von der Shop-Seite verwendete) URL:
 `/reservations/template/<TEMPLATE_ID>/availability/?day=..&month=..&year=..`
+
+## Home Assistant /config
+
+Das Add-on legt bei laufendem Betrieb einen Ordner an:
+- /config/beautykuppel_termine/settings.json
+- /config/beautykuppel_termine/media/
+
+Diese Dateien sind per Samba bearbeitbar und werden fuer /signage2 und /list genutzt.
+

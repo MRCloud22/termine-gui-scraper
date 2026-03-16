@@ -28,8 +28,18 @@ const APP_VERSION = (() => {
 
 const PORT = Number(process.env.PORT || 8099);
 const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(process.cwd(), "data");
+const CONFIG_DIR = process.env.CONFIG_DIR ? path.resolve(process.env.CONFIG_DIR) : "/config";
 const STATIC_SRC_DIR = path.join(process.cwd(), "static");
 const STATIC_OUT_DIR = path.join(DATA_DIR, "out");
+
+function resolveConfigDir() {
+  try {
+    return fs.existsSync(CONFIG_DIR) ? CONFIG_DIR : null;
+  } catch {
+    return null;
+  }
+}
+
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -183,6 +193,7 @@ async function publishStaticAndMaybeFtp(cfg) {
       staticSrcDir: STATIC_SRC_DIR,
       outDir: STATIC_OUT_DIR,
       results,
+      configDir: resolveConfigDir(),
     });
 
     writeStatus({ lastPublishAt: new Date().toISOString(), lastPublishError: null });
@@ -566,4 +577,7 @@ app.listen(PORT, () => {
   // ensure static pages exist even before first scrape
   publishStaticAndMaybeFtp(readConfig()).catch(() => {});
 });
+
+
+
 

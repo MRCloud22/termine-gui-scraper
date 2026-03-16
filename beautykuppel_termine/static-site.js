@@ -1,4 +1,4 @@
-import crypto from "node:crypto";
+﻿import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -9,6 +9,29 @@ function ensureDir(dirPath) {
 function copyDir(srcDir, destDir) {
   ensureDir(destDir);
   fs.cpSync(srcDir, destDir, { recursive: true });
+}
+
+function copyFileIfMissing(src, dest) {
+  if (!fs.existsSync(src)) return false;
+  if (fs.existsSync(dest)) return false;
+  ensureDir(path.dirname(dest));
+  fs.copyFileSync(src, dest);
+  return true;
+}
+
+function copyDirFiles(srcDir, destDir, { overwrite = false } = {}) {
+  if (!fs.existsSync(srcDir)) return 0;
+  ensureDir(destDir);
+  let count = 0;
+  for (const file of fs.readdirSync(srcDir)) {
+    const src = path.join(srcDir, file);
+    const dst = path.join(destDir, file);
+    if (!fs.statSync(src).isFile()) continue;
+    if (!overwrite && fs.existsSync(dst)) continue;
+    fs.copyFileSync(src, dst);
+    count++;
+  }
+  return count;
 }
 
 function readJsonIfExists(filePath) {
@@ -56,8 +79,8 @@ export function buildRssXml(appointmentsJson, settings) {
     settings?.appSettings?.emptyStateText ||
     "Aktuell sind keine freien Termine vorhanden.";
 
-  let rss = `<?xml version="1.0" encoding="UTF-8" ?>\n` +
-    `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n` +
+  let rss = `<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n` +
+    `<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n` +
     `<channel>\n` +
     `  <title>Beautykuppel Therme - Freie Termine</title>\n` +
     `  <link>https://shop.beautykuppel-therme-badaibling.de/</link>\n` +
@@ -70,7 +93,7 @@ export function buildRssXml(appointmentsJson, settings) {
       `\n  <item>\n` +
       `    <title>${escapeXml(emptyStateText)}</title>\n` +
       `    <link>https://shop.beautykuppel-therme-badaibling.de/</link>\n` +
-      `    <guid isPermaLink="false">empty-state</guid>\n` +
+      `    <guid isPermaLink=\"false\">empty-state</guid>\n` +
       `    <pubDate>${new Date().toUTCString()}</pubDate>\n` +
       `  </item>`;
   } else {
@@ -78,7 +101,7 @@ export function buildRssXml(appointmentsJson, settings) {
       `\n  <item>\n` +
       `    <title>Heutige freie Termine</title>\n` +
       `    <link>https://shop.beautykuppel-therme-badaibling.de/</link>\n` +
-      `    <guid isPermaLink="false">separator-start</guid>\n` +
+      `    <guid isPermaLink=\"false\">separator-start</guid>\n` +
       `    <pubDate>${new Date().toUTCString()}</pubDate>\n` +
       `  </item>`;
 
@@ -88,14 +111,14 @@ export function buildRssXml(appointmentsJson, settings) {
         .update(`${app.date}-${app.time}-${app.treatment}`)
         .digest("hex");
       const timeFormatted = String(app.time || "").replace(":", ".");
-      const priceFormatted = String(app.price || "").replace(/\.00\s*€?$/, "").replace(/€/, "").trim();
-      const priceDisplay = priceFormatted ? `${priceFormatted} €` : "";
+      const priceFormatted = String(app.price || "").replace(/\.00\s*â‚¬?$/, "").replace(/â‚¬/, "").trim();
+      const priceDisplay = priceFormatted ? `${priceFormatted} â‚¬` : "";
 
       rss +=
         `\n  <item>\n` +
         `    <title>${escapeXml(`${app.treatment} um ${timeFormatted} Uhr${priceDisplay ? ` fuer ${priceDisplay}` : ""}`)}</title>\n` +
         `    <link>${escapeXml(String(app.bookingUrl || ""))}</link>\n` +
-        `    <guid isPermaLink="false">${guid}</guid>\n` +
+        `    <guid isPermaLink=\"false\">${guid}</guid>\n` +
         `    <pubDate>${new Date().toUTCString()}</pubDate>\n` +
         `  </item>`;
 
@@ -104,7 +127,7 @@ export function buildRssXml(appointmentsJson, settings) {
           `\n  <item>\n` +
           `    <title>Heutige freie Termine</title>\n` +
           `    <link>https://shop.beautykuppel-therme-badaibling.de/</link>\n` +
-          `    <guid isPermaLink="false">separator-${Math.floor(index / 3)}</guid>\n` +
+          `    <guid isPermaLink=\"false\">separator-${Math.floor(index / 3)}</guid>\n` +
           `    <pubDate>${new Date().toUTCString()}</pubDate>\n` +
           `  </item>`;
       }
@@ -120,20 +143,35 @@ export function buildStaticOut({
   staticSrcDir,
   outDir,
   results,
+  configDir,
 }) {
   ensureDir(outDir);
 
   // Copy static page assets
   copyDir(staticSrcDir, outDir);
 
-  // Ensure settings.json exists in out root; prefer user-edited data/settings.json if present.
+  // Ensure settings.json exists in out root; prefer /config (HA) then data/ then defaults.
+  const defaultSettingsPath = path.join(staticSrcDir, "settings.json");
   const userSettingsPath = path.join(dataDir, "settings.json");
+  const configBaseDir = configDir ? path.join(configDir, "beautykuppel_termine") : null;
+  const configSettingsPath = configBaseDir ? path.join(configBaseDir, "settings.json") : null;
+  const configMediaDir = configBaseDir ? path.join(configBaseDir, "media") : null;
   const settingsPath = path.join(outDir, "settings.json");
-  if (fs.existsSync(userSettingsPath)) {
-    fs.copyFileSync(userSettingsPath, settingsPath);
-  } else if (!fs.existsSync(settingsPath)) {
-    // static/settings.json is copied already; nothing to do
+
+  if (configBaseDir) {
+    ensureDir(configBaseDir);
+    if (configSettingsPath) copyFileIfMissing(defaultSettingsPath, configSettingsPath);
+    if (configMediaDir) {
+      ensureDir(configMediaDir);
+      copyDirFiles(path.join(staticSrcDir, "media"), configMediaDir, { overwrite: false });
+    }
   }
+
+  const preferredSettingsPath =
+    (configSettingsPath && fs.existsSync(configSettingsPath) && configSettingsPath) ||
+    (fs.existsSync(userSettingsPath) && userSettingsPath) ||
+    defaultSettingsPath;
+  if (preferredSettingsPath) fs.copyFileSync(preferredSettingsPath, settingsPath);
 
   // Compatibility: also place settings + media into /signage2/
   const signage2Dir = path.join(outDir, "signage2");
@@ -142,14 +180,13 @@ export function buildStaticOut({
     fs.copyFileSync(settingsPath, path.join(signage2Dir, "settings.json"));
   }
   const mediaDir = path.join(outDir, "media");
+  if (configMediaDir && fs.existsSync(configMediaDir)) {
+    copyDirFiles(configMediaDir, mediaDir, { overwrite: true });
+  }
   if (fs.existsSync(mediaDir)) {
     const signage2MediaDir = path.join(signage2Dir, "media");
     ensureDir(signage2MediaDir);
-    for (const file of fs.readdirSync(mediaDir)) {
-      const src = path.join(mediaDir, file);
-      const dst = path.join(signage2MediaDir, file);
-      if (fs.statSync(src).isFile()) fs.copyFileSync(src, dst);
-    }
+    copyDirFiles(mediaDir, signage2MediaDir, { overwrite: true });
   }
 
   // Write appointments.json (old naming) and also results.json (new naming)
@@ -164,4 +201,3 @@ export function buildStaticOut({
 
   return { outDir, appointmentsJson, settings };
 }
-
