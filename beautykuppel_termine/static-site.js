@@ -199,5 +199,6 @@ export function buildStaticOut({
   const rss = buildRssXml(appointmentsJson, settings);
   writeText(path.join(outDir, "rss.xml"), rss);
 
-  return { outDir, appointmentsJson, settings };
+  return { outDir, appointmentsJson, settings, settingsSource: preferredSettingsPath, configBaseDir };
 }
+

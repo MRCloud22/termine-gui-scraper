@@ -190,6 +190,8 @@ async function publishStaticAndMaybeFtp(cfg) {
 
     // Build static output to DATA_DIR/out
     const built = buildStaticOut({
+    if (built?.settingsSource) console.log("Settings source:", built.settingsSource);
+    if (built?.configBaseDir) console.log("Config base dir:", built.configBaseDir);
       dataDir: DATA_DIR,
       staticSrcDir: STATIC_SRC_DIR,
       outDir: STATIC_OUT_DIR,
@@ -211,6 +213,7 @@ async function publishStaticAndMaybeFtp(cfg) {
       console.log("FTP upload: full sync on startup");
     }
     const { uploaded, manifest } = await ftpUploadChanged({
+    console.log("FTP manifest entries:", Object.keys(manifest || {}).length);
       localDir: built.outDir,
       remoteDir: ftpCfg.remotePath || "/",
       connection: {
@@ -237,7 +240,9 @@ async function publishStaticAndMaybeFtp(cfg) {
       lastFtpUploadedCount: uploaded.length,
     });
   } catch (e) {
-    writeStatus({ lastPublishError: e?.message || String(e) });
+    const msg = e?.message || String(e);
+    writeStatus({ lastPublishError: msg, lastFtpUploadError: msg });
+    console.error("Publish/FTP error:", msg);
   } finally {
     publishInProgress = false;
   }
@@ -590,6 +595,7 @@ app.listen(PORT, () => {
   // ensure static pages exist even before first scrape
   publishStaticAndMaybeFtp(readConfig()).catch(() => {});
 });
+
 
 
 
