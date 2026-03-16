@@ -53,16 +53,15 @@ function applyTagStyle(el, cfg, defaults) {
     return;
   }
   el.style.display = "block";
+  el.style.position = "absolute";
+  el.style.top = c.top != null ? `${c.top}px` : "auto";
+  el.style.right = c.right != null ? `${c.right}px` : "auto";
+  el.style.bottom = c.bottom != null ? `${c.bottom}px` : "auto";
+  el.style.left = c.left != null ? `${c.left}px` : "auto";
+  el.style.transform = "none";
   if (c.size != null) el.style.fontSize = `${c.size}px`;
   if (c.color) el.style.color = c.color;
-  if (c.top != null || c.right != null || c.bottom != null || c.left != null) {
-    el.style.position = "absolute";
-    el.style.top = c.top != null ? `${c.top}px` : "auto";
-    el.style.right = c.right != null ? `${c.right}px` : "auto";
-    el.style.bottom = c.bottom != null ? `${c.bottom}px` : "auto";
-    el.style.left = c.left != null ? `${c.left}px` : "auto";
-    el.style.transform = "none";
-  }
+  if (c.weight != null) el.style.fontWeight = String(c.weight);
 }
 
 
@@ -156,7 +155,8 @@ function buildPill(apt, fallbackImage) {
   content.className = "pillContent";
   const time = document.createElement("div");
   time.className = "time";
-  time.textContent = apt.time || "";
+  const rawTime = apt.time || "";
+  time.textContent = rawTime && rawTime.includes("Uhr") ? rawTime : rawTime ? `${rawTime} Uhr` : "";
   const treatment = document.createElement("div");
   treatment.className = "treatment";
   treatment.textContent = apt.treatment || "";
@@ -198,6 +198,7 @@ async function main() {
     appSettings = {};
   }
 
+  const mediaBase = "../media/";
   const container = $("container");
   if (custom.pillColor) {
     container.style.setProperty("--pill-bg", custom.pillColor);
@@ -205,7 +206,7 @@ async function main() {
   const bg = custom.backgroundColor || "#F4F1E9";
   container.style.backgroundColor = bg;
   if (custom.backgroundImage && custom.backgroundImage !== "none") {
-    container.style.backgroundImage = `url(${mediaBase + custom.backgroundImage})`;
+    container.style.backgroundImage = "url(" + mediaBase + custom.backgroundImage + ")";
     container.style.backgroundSize = "cover";
     container.style.backgroundPosition = "center";
     container.style.backgroundRepeat = "no-repeat";
@@ -220,7 +221,6 @@ async function main() {
   applyBoxStyle($("heroCircle"), custom.heroCircle, { size: 300, top: 160, right: 50 });
   applyBoxStyle($("massageCircle"), custom.circleFooter, { size: 420, bottom: -80, left: -80 });
 
-  const mediaBase = "../media/";
   $("heroImg").src = mediaBase + (custom.heroImage || "spa-hero.png");
   $("massageImg").src = mediaBase + (custom.massageImage || "massage.png");
   $("logoImg").src = mediaBase + (custom.logo || "logo.png");
@@ -229,17 +229,39 @@ async function main() {
   $("logoImg").style.width = "100%";
   $("logoImg").style.height = "100%";
   $("logoImg").style.objectFit = "contain";
+  const logoTextEl = document.querySelector(".logoText");
+  if (logoTextEl && (logoCfg.top != null || logoCfg.left != null || logoCfg.right != null || logoCfg.bottom != null)) {
+    const offset = (logoCfg.size || 90) + 24;
+    logoTextEl.style.marginLeft = offset + "px";
+  }
 
   $("qrImg").src = mediaBase + (custom.qrCode || "qr-code.png");
   const qrCfg = custom.qrConfig || {};
-  applyImageBox($("qrWrap"), qrCfg, { size: 150 });
+  const qrWrap = $("qrWrap");
+  if (qrWrap && qrCfg.size) {
+    qrWrap.style.width = qrCfg.size + "px";
+    qrWrap.style.height = qrCfg.size + "px";
+  }
+  const qrSection = document.querySelector(".qrSection");
+  if (qrSection && (qrCfg.top != null || qrCfg.left != null || qrCfg.right != null || qrCfg.bottom != null)) {
+    qrSection.style.position = "absolute";
+    qrSection.style.top = qrCfg.top != null ? qrCfg.top + "px" : "auto";
+    qrSection.style.right = qrCfg.right != null ? qrCfg.right + "px" : "auto";
+    qrSection.style.bottom = qrCfg.bottom != null ? qrCfg.bottom + "px" : "auto";
+    qrSection.style.left = qrCfg.left != null ? qrCfg.left + "px" : "auto";
+  }
   $("qrImg").style.width = "100%";
   $("qrImg").style.height = "100%";
   $("qrImg").style.objectFit = "contain";
 
-  $("title").textContent = custom.title || "BEAUTYKUPPEL";
-  $("subtitle").textContent = custom.subtitle || "Therme Bad Aibling";
-  $("listTitle").textContent = custom.listTitle || "FREIE TERMINE HEUTE";
+  const titleText = custom.title != null ? custom.title : "BEAUTYKUPPEL";
+  const subtitleText = custom.subtitle != null ? custom.subtitle : "Therme Bad Aibling";
+  const listTitle = custom.listTitle != null ? custom.listTitle : "FREIE TERMINE HEUTE";
+  $("title").textContent = titleText;
+  $("subtitle").textContent = subtitleText;
+  $("listTitle").innerHTML = String(listTitle)
+    .replaceAll("\\n", "<br/>")
+    .replaceAll("\n", "<br/>");
 
   // Clock positioning
   const timeCfg = custom.timeConfig || {};
@@ -262,19 +284,18 @@ async function main() {
 
   function tickClock() {
     const now = new Date();
-    $("clockTime").textContent = formatTime(now);
+    $("clockTime").textContent = `${formatTime(now)} Uhr`;
     $("clockDate").textContent = formatDate(now);
   }
   tickClock();
   setInterval(tickClock, 1000);
 
   // Footer/QR text
-  const qrLabel = custom.qrLabel || "Infos & Buchung unter";
-  const qrUrl = custom.qrUrl || "beautykuppel.de/termine";
-  $("qrText").textContent = `${qrLabel}\n${qrUrl}`;
-  $("qrText").style.whiteSpace = "pre-line";
+  const qrLabel = custom.qrLabel != null ? custom.qrLabel : "Infos & Buchung unter";
+  const qrUrl = custom.qrUrl != null ? custom.qrUrl : "beautykuppel.de/termine";
+  $("qrText").innerHTML = `${qrLabel}<br/><strong>${qrUrl}</strong>`;
 
-  const emptyText = custom.emptyText || "Aktuell sind keine freien Termine vorhanden.";
+  const emptyText = custom.emptyText != null ? custom.emptyText : "Aktuell sind keine freien Termine vorhanden.";
 
   const rotationIntervalSec = Number(appSettings.signageRotationInterval || custom.signageRotationInterval || 8) || 8;
   const promoEnabled = custom.promoConfig?.show !== false && !!custom.promoConfig?.text;
@@ -289,8 +310,17 @@ async function main() {
       const data = await fetchJson("../appointments.json");
       if (data?.success) {
         all = filterPastAppointments(data.appointments || []);
-        $("updatedTag").textContent = data.lastUpdated ? `last updated: ${data.lastUpdated}` : "";
-        applyTagStyle($("updatedTag"), custom.lastUpdatedConfig, { show: true, size: 11, bottom: 5, left: 40, color: "rgba(0, 0, 0, 0.3)" });
+        let updatedText = "";
+        if (data.lastUpdated) {
+          const parsed = new Date(data.lastUpdated);
+          if (!Number.isNaN(parsed.getTime())) {
+            updatedText = `Stand: ${parsed.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })} Uhr`;
+          } else {
+            updatedText = `Stand: ${data.lastUpdated}`;
+          }
+        }
+        $("updatedTag").textContent = updatedText;
+        applyTagStyle($("updatedTag"), custom.lastUpdatedConfig, { show: !!updatedText, size: 20, bottom: 30, right: 40, color: "rgba(94, 115, 103, 0.7)" });
       }
     } catch {
       // ignore
@@ -308,8 +338,14 @@ async function main() {
       promoEl.style.display = "flex";
       promoEl.style.color = custom.promoConfig?.color || "#5E7367";
       promoEl.style.fontSize = (custom.promoConfig?.fontSize || 38) + "px";
-      promoEl.style.whiteSpace = "pre-line";
-      promoEl.textContent = String(custom.promoConfig?.text || "").replaceAll("\\n", "\n");
+      const promoCfg = custom.promoConfig || {};
+      promoEl.style.paddingTop = promoCfg.top != null ? `${60 + promoCfg.top}px` : "60px";
+      promoEl.style.paddingBottom = promoCfg.bottom != null ? `${60 + promoCfg.bottom}px` : "60px";
+      promoEl.style.paddingLeft = promoCfg.left != null ? `${80 + promoCfg.left}px` : "80px";
+      promoEl.style.paddingRight = promoCfg.right != null ? `${80 + promoCfg.right}px` : "80px";
+      promoEl.innerHTML = String(custom.promoConfig?.text || "")
+        .replaceAll("\\n", "<br/>")
+        .replaceAll("\n", "<br/>");
       return;
     }
 
@@ -318,7 +354,9 @@ async function main() {
 
     if (!all.length) {
       listEl.innerHTML = "";
-      emptyEl.textContent = emptyText;
+      emptyEl.innerHTML = String(emptyText)
+        .replaceAll("\\n", "<br/>")
+        .replaceAll("\n", "<br/>");
       emptyEl.style.display = "block";
       return;
     }
