@@ -32,6 +32,10 @@ const CONFIG_DIR = process.env.CONFIG_DIR ? path.resolve(process.env.CONFIG_DIR)
 const STATIC_SRC_DIR = path.join(process.cwd(), "static");
 const STATIC_OUT_DIR = path.join(DATA_DIR, "out");
 
+function log(...args) {
+  console.log(new Date().toISOString(), ...args);
+}
+
 function resolveConfigDir() {
   try {
     return fs.existsSync(CONFIG_DIR) ? CONFIG_DIR : null;
@@ -185,24 +189,24 @@ async function publishStaticAndMaybeFtp(cfg) {
   publishInProgress = true;
   try {
     const results = readResults();
-    const staticEnabled = cfg?.staticExport?.enabled !== false;
+    const staticEnabled = !(cfg && cfg.staticExport && cfg.staticExport.enabled === false);
     if (!staticEnabled) return;
 
     // Build static output to DATA_DIR/out
     const built = buildStaticOut({
-    if (built && built.settingsSource) console.log("Settings source:", built.settingsSource);
-    if (built && built.configBaseDir) console.log("Config base dir:", built.configBaseDir);
       dataDir: DATA_DIR,
       staticSrcDir: STATIC_SRC_DIR,
       outDir: STATIC_OUT_DIR,
       results,
       configDir: resolveConfigDir(),
     });
+    if (built && built.settingsSource) log("Settings source:", built.settingsSource);
+    if (built && built.configBaseDir) log("Config base dir:", built.configBaseDir);
 
     writeStatus({ lastPublishAt: new Date().toISOString(), lastPublishError: null });
 
     // Optional FTP delta upload
-    const ftpCfg = cfg?.ftp || {};
+    const ftpCfg = cfg && cfg.ftp ? cfg.ftp : {};
     if (!ftpCfg.enabled) return;
     if (!ftpCfg.host) throw new Error("FTP enabled but ftp.host is empty");
     if (!ftpCfg.user) throw new Error("FTP enabled but ftp.user is empty");
@@ -210,10 +214,9 @@ async function publishStaticAndMaybeFtp(cfg) {
     const prev = readFtpManifest();
     const forceAll = forceFullUploadOnce === true;
     if (forceAll) {
-      console.log("FTP upload: full sync on startup");
+      log("FTP upload: full sync on startup");
     }
     const { uploaded, manifest } = await ftpUploadChanged({
-    console.log("FTP manifest entries:", Object.keys(manifest || {}).length);
       localDir: built.outDir,
       remoteDir: ftpCfg.remotePath || "/",
       connection: {
@@ -226,11 +229,12 @@ async function publishStaticAndMaybeFtp(cfg) {
       previousManifest: prev,
       forceAll,
     });
+    log("FTP manifest entries:", Object.keys(manifest || {}).length);
     if (uploaded.length) {
-      console.log("FTP uploaded " + uploaded.length + " file(s):");
-      for (const file of uploaded) console.log("FTP uploaded", file);
+      log("FTP uploaded " + uploaded.length + " file(s):");
+      for (const file of uploaded) log("FTP uploaded", file);
     } else {
-      console.log("FTP upload: no changes");
+      log("FTP upload: no changes");
     }
     forceFullUploadOnce = false;
     writeFtpManifest(manifest);
@@ -240,9 +244,9 @@ async function publishStaticAndMaybeFtp(cfg) {
       lastFtpUploadedCount: uploaded.length,
     });
   } catch (e) {
-    const msg = e?.message || String(e);
+    const msg = e && e.message ? e.message : String(e);
     writeStatus({ lastPublishError: msg, lastFtpUploadError: msg });
-    console.error("Publish/FTP error:", msg);
+    log("Publish/FTP error:", msg);
   } finally {
     publishInProgress = false;
   }
@@ -589,7 +593,7 @@ app.post("/api/stop", (req, res) => {
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`Beautykuppel Termine running on http://localhost:${PORT}`);
+  log(`Beautykuppel Termine running on http://localhost:${PORT}`);
   // restore timer on restart
   startTimerFromConfig();
   // ensure static pages exist even before first scrape
