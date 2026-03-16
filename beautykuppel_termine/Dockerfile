@@ -18,5 +18,3 @@ EXPOSE 8099
 
 ENV PORT=8099
 ENV DATA_DIR=/data
-
-CMD ["/init"]
