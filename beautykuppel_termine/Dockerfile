@@ -1,4 +1,7 @@
-﻿FROM node:24-alpine
+ARG BUILD_FROM
+FROM ${BUILD_FROM}
+
+RUN apk add --no-cache nodejs npm
 
 WORKDIR /app
 
@@ -14,5 +17,3 @@ ENV PORT=8099
 ENV DATA_DIR=/data
 
 CMD ["node", "server.js"]
-
-
