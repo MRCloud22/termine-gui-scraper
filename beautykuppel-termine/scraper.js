@@ -1,4 +1,5 @@
 const BASE = "https://shop.beautykuppel-therme-badaibling.de";
+const EURO = "\u20AC";
 
 function stripTags(html) {
   return html.replace(/<[^>]*>/g, " ");
@@ -7,6 +8,7 @@ function stripTags(html) {
 function decodeBasicEntities(text) {
   return text
     .replaceAll("&nbsp;", " ")
+    .replaceAll("&euro;", EURO)
     .replaceAll("&amp;", "&")
     .replaceAll("&quot;", "\"")
     .replaceAll("&#039;", "'")
@@ -127,7 +129,7 @@ function parseTreatmentsFromCategoryPage(html, category) {
         stripTags(block.match(/<span class="article-price">([\s\S]*?)<\/span>/)?.[1] || ""),
       ),
     );
-    const price = priceNumber ? `€ ${priceNumber}` : "";
+    const price = priceNumber ? `${EURO} ${priceNumber.replace(/[^0-9.,]/g, "").trim()}` : "";
 
     const imgSrc = block.match(/<img[^>]*src="([^"]+)"[^>]*>/)?.[1] || "";
     const imageUrl = imgSrc ? (imgSrc.startsWith("http") ? imgSrc : `${BASE}${imgSrc}`) : "";
@@ -218,13 +220,13 @@ export function parseAvailabilitiesHtml(html) {
       part.match(/<div class="name[^"]*">[\s\S]*?<div>\s*([\s\S]*?)\s*<\/div>/)?.[1] || "";
     const name = normalizeWhitespace(decodeBasicEntities(stripTags(nameRaw)));
 
-    const priceNumber = part.match(/(?:€|â‚¬)\s*&nbsp;\s*([\d.,]+)/)?.[1] || "";
-    const price = priceNumber ? `€ ${priceNumber.replace(".", ",")}` : "";
+    const priceNumber = part.match(/(?:\u20AC|&euro;)\s*(?:&nbsp;|\u00a0)?\s*([0-9.,]+)/)?.[1] || "";
+    const price = priceNumber ? `${EURO} ${priceNumber.replace(".", ",")}` : "";
 
     const originalPriceNumber =
-      part.match(/class="original-price"[\s\S]*?(?:€|â‚¬)\s*&nbsp;\s*([\d.,]+)/)?.[1] || null;
+      part.match(/class="original-price"[\s\S]*?(?:\u20AC|&euro;)\s*(?:&nbsp;|\u00a0)?\s*([0-9.,]+)/)?.[1] || null;
     const originalPrice = originalPriceNumber
-      ? `€ ${originalPriceNumber.replace(".", ",")}`
+      ? `${EURO} ${originalPriceNumber.replace(".", ",")}`
       : null;
 
     entries.push({
