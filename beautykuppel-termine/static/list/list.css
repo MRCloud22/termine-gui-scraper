@@ -1,0 +1,221 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600&display=swap');
+
+.container {
+    background-color: #BDDFD3;
+    color: #555555;
+    font-family: 'Source Sans Pro', sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+    background-image: none !important;
+}
+
+body {
+    background: #BDDFD3 !important;
+    margin: 0;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 400;
+    text-align: center;
+    margin-bottom: 25px;
+    color: #555555;
+}
+
+.tableContainer {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: transparent;
+}
+
+.tableHeader {
+    display: grid;
+    grid-template-columns: 120px 100px 1fr 100px 80px;
+    padding: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 2px solid #555555;
+    text-transform: uppercase;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 120px 100px 1fr 100px 80px;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid #FFFFFF;
+    font-size: 14px;
+}
+
+.row:nth-child(even) {
+    background-color: #EEEEEE;
+}
+
+.cell {
+    padding: 0 5px;
+}
+
+.treatment {
+    font-weight: 400;
+}
+
+.priceContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    padding-right: 15px;
+}
+
+.originalPrice {
+    font-size: inherit;
+    font-weight: inherit;
+    color: #D32F2F;
+    text-decoration: line-through;
+    margin-top: -2px;
+    font-variant-numeric: tabular-nums;
+}
+
+.price {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.bookButton {
+    background-color: #CDAF83;
+    color: #4B6D65;
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.bookButton:hover {
+    background-color: #bd9e72;
+}
+
+.loading,
+.error,
+.empty {
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 30px;
+    padding-bottom: 20px;
+}
+
+.pageButton {
+    background-color: #FFFFFF;
+    color: #555555;
+    border: 1px solid #CDAF83;
+    border-radius: 3px;
+    padding: 5px 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.pageButton:hover:not(:disabled) {
+    background-color: #EEEEEE;
+    border-color: #bd9e72;
+}
+
+.pageButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.activePage {
+    background-color: #CDAF83;
+    color: #4B6D65;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .tableHeader {
+        display: none;
+    }
+
+    .row {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .cell:nth-child(1),
+    .cell:nth-child(2) {
+        font-weight: 600;
+    }
+
+    .cell:nth-child(3) {
+        grid-column: span 2;
+        font-size: 16px;
+        margin: 5px 0;
+    }
+
+    .cell:nth-child(4) {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .action {
+        grid-column: span 2;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .bookButton {
+        width: 100%;
+        justify-content: center;
+        padding: 10px;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rowsContainer .row {
+    animation: slideIn 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+.rowsContainer .row:nth-child(1) { animation-delay: 0.05s; }
+.rowsContainer .row:nth-child(2) { animation-delay: 0.1s; }
+.rowsContainer .row:nth-child(3) { animation-delay: 0.15s; }
+.rowsContainer .row:nth-child(4) { animation-delay: 0.2s; }
+.rowsContainer .row:nth-child(5) { animation-delay: 0.25s; }
+.rowsContainer .row:nth-child(6) { animation-delay: 0.3s; }
+.rowsContainer .row:nth-child(7) { animation-delay: 0.35s; }
+.rowsContainer .row:nth-child(8) { animation-delay: 0.4s; }
+.rowsContainer .row:nth-child(9) { animation-delay: 0.45s; }
+.rowsContainer .row:nth-child(10) { animation-delay: 0.5s; }
+

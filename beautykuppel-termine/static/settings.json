@@ -1,0 +1,68 @@
+{
+    "signage2": {
+        "title": "BEAUTYKUPPEL",
+        "subtitle": "Therme Bad Aibling",
+        "logo": "logo.png",
+        "backgroundImage": "none",
+        "backgroundColor": "#F4F1E9",
+        "heroImage": "spa-hero.png",
+        "massageImage": "massage.png",
+        "qrCode": "qr-code.png",
+        "listTitle": "FREIE TERMINE HEUTE",
+        "emptyText": "",
+        "qrLabel": "Infos & Buchung unter",
+        "qrUrl": "beautykuppel.de/termine",
+        "theme": "light",
+        "logoConfig": {
+            "size": 90,
+            "top": 44,
+            "left": 50
+        },
+        "qrConfig": {
+            "size": 150
+        },
+        "circleMain": {
+            "size": 1200,
+            "top": 280,
+            "left": -280,
+            "color": "#5E7367"
+        },
+        "circleAccent": {
+            "size": 520,
+            "bottom": -120,
+            "right": -120,
+            "color": "#D7E4D9"
+        },
+        "circleFooter": {
+            "size": 420,
+            "bottom": -80,
+            "left": -80
+        },
+        "heroCircle": {
+            "size": 300,
+            "top": 160,
+            "right": 50
+        },
+        "timeConfig": {
+            "show": true,
+            "size": 48,
+            "top": 40,
+            "right": 60,
+            "color": "#5E7367"
+        },
+        "lastUpdatedConfig": {
+            "show": true,
+            "size": 20,
+            "bottom": 30,
+            "right": 40,
+            "color": "rgba(94, 115, 103, 0.7)"
+        },
+        "promoConfig": {
+            "show": true,
+            "text": "Termine können direkt an der\\nBeautykuppel oder über die\\nAnlage am Drehkreuz\\nvereinbart werden.",
+            "duration": 8,
+            "fontSize": 38,
+            "color": "#5E7367"
+        }
+    }
+}

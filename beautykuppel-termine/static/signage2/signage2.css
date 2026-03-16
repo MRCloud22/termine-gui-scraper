@@ -1,0 +1,379 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+/*
+ * Portrait digital-signage layout.
+ * Reference canvas: 1080 x 1920 (Full-HD portrait).
+ * JS applies transform: scale() so it looks identical at any size.
+ */
+
+.scaleWrapper {
+    width: 1080px;
+    height: 1920px;
+    transform-origin: top left;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+}
+
+.container {
+    width: 1080px;
+    height: 1920px;
+    background-color: #F4F1E9;
+    color: #333;
+    font-family: 'Montserrat', sans-serif;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.4s ease-in;
+}
+
+.container.ready {
+    opacity: 1;
+}
+
+.viewportWrapper {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    background: #000;
+}
+
+.backgroundDecor {
+    position: absolute;
+    background-color: #5E7367;
+    border-radius: 50%;
+    border: 5px solid white;
+    opacity: 1;
+    z-index: 1;
+}
+
+.backgroundDecor2 {
+    position: absolute;
+    background-color: #D7E4D9;
+    border-radius: 50%;
+    border: 5px solid white;
+    z-index: 1;
+}
+
+.massageImage {
+    position: absolute;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    z-index: 5;
+}
+
+.massageImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.header {
+    height: 180px;
+    padding: 44px 50px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+}
+
+.logoIcon {
+    width: 90px;
+    height: 90px;
+    margin-right: 24px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.logoIcon img {
+    height: 90px;
+    width: auto;
+}
+
+.logoText h1 {
+    font-size: 38px;
+    color: #5E7367;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.logoText p {
+    font-size: 26px;
+    color: #C19A6B;
+    margin: 0;
+    font-weight: 500;
+}
+
+.heroImage {
+    position: absolute;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 5;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    border: 5px solid white;
+}
+
+.heroImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 50px;
+    position: relative;
+    z-index: 10;
+}
+
+.title {
+    color: white;
+    font-size: 64px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-top: 320px;
+    margin-bottom: 50px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.appointmentList {
+    width: 100%;
+    max-width: 940px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.appointmentPill {
+    background-color: #F4F1E9;
+    border-radius: 100px;
+    padding: 12px 50px 12px 12px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.6s ease-out forwards;
+    opacity: 0;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    will-change: transform, opacity;
+    transform: translateZ(0);
+}
+
+.pillImage {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 28px;
+    flex-shrink: 0;
+    border: 2px solid white;
+}
+
+.pillImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pillContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.time {
+    font-size: 24px;
+    color: #444;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.treatment {
+    font-size: 28px;
+    font-weight: 600;
+    color: #222;
+}
+
+.priceContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    min-width: 110px;
+}
+
+.originalPrice {
+    font-size: 36px;
+    font-weight: 700;
+    color: #D32F2F;
+    text-decoration: line-through;
+    text-align: right;
+    margin-top: -4px;
+    font-variant-numeric: tabular-nums;
+}
+
+.price {
+    font-size: 36px;
+    font-weight: 700;
+    color: #444;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.footer {
+    height: 280px;
+    padding: 30px 55px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+}
+
+.qrSection {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+.qrContainer {
+    padding: 10px;
+    background-color: transparent;
+}
+
+.qrContainer img {
+    width: 150px;
+    height: 150px;
+}
+
+.qrInfoText {
+    font-size: 22px;
+    color: #5E7367;
+    font-weight: 600;
+    text-align: right;
+    margin-top: -10px;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.emptyState {
+    font-size: 42px;
+    color: white;
+    text-align: center;
+    padding: 140px 0;
+    font-weight: 600;
+}
+
+.promoScreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex: 1;
+    font-weight: 600;
+    line-height: 1.5;
+    animation: fadeInPromo 0.6s ease-in;
+}
+
+@keyframes fadeInPromo {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.darkTheme {
+    background-color: #1a1a1a !important;
+    color: #f4f1e9;
+}
+
+.darkTheme .logoText h1,
+.darkTheme .logoText p,
+.darkTheme .title {
+    color: #d7e4d9;
+}
+
+.darkTheme .appointmentPill {
+    background-color: #2d3430 !important;
+    color: #f4f1e9;
+}
+
+.darkTheme .time {
+    color: #e8f5e9;
+}
+
+.darkTheme .qrInfoText {
+    color: #d7e4d9;
+}
+
+.versionTag {
+    position: fixed;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    text-align: center;
+    z-index: 1000;
+}
+
+.darkTheme .versionTag {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.timeDisplayWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.timeDisplay {
+    white-space: nowrap;
+    line-height: 1.1;
+    font-weight: 600;
+}
+
+.timeDate {
+    display: block;
+    width: 100%;
+    text-align: right;
+    font-size: 0.42em;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: visible;
+}
+

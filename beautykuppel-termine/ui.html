@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Beautykuppel Termine</title>
+    <link rel="stylesheet" href="/ui.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="top">
+        <div class="brand">
+          <div class="brand__title">Beautykuppel Termine</div>
+          <div class="brand__sub">Freie Behandlungen, lokal gespeichert als JSON</div>
+        </div>
+        <div class="status" id="statusLine">Lade Status...</div>
+      </header>
+
+      <section class="panel">
+        <h2>Abfrage</h2>
+        <div class="grid">
+          <label class="field">
+            <span>Von</span>
+            <input id="startDateTime" type="datetime-local" />
+          </label>
+          <label class="field">
+            <span>Bis</span>
+            <input id="endDateTime" type="datetime-local" />
+          </label>
+          <label class="field field--inline">
+            <span>Modus</span>
+            <label class="toggle">
+              <input id="useTodayWindow" type="checkbox" />
+              <span>Heute (0:00-23:59)</span>
+            </label>
+          </label>
+          <label class="field">
+            <span>Intervall (Minuten)</span>
+            <input id="refreshMinutes" type="number" min="1" step="1" value="5" />
+          </label>
+          <div class="actions">
+            <button id="saveConfig" class="btn btn--primary">Speichern</button>
+            <button id="runNow" class="btn">Jetzt abfragen</button>
+            <button id="stop" class="btn btn--danger">Stop</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__head">
+          <h2>Behandlungen</h2>
+          <div class="tools">
+            <select id="categoryFilter" class="select"></select>
+            <input id="treatmentFilter" class="search" type="search" placeholder="Suchen..." />
+            <label class="toggle">
+              <input id="showSelectedOnly" type="checkbox" />
+              <span>Nur genutzt</span>
+            </label>
+            <button id="reloadTreatments" class="btn btn--ghost">Neu laden</button>
+          </div>
+        </div>
+        <div id="treatments" class="treatments">Lade Behandlungen...</div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__head">
+          <h2>Ergebnisse</h2>
+          <div class="tools">
+            <button id="refreshResults" class="btn btn--ghost">Aktualisieren</button>
+          </div>
+        </div>
+        <div class="meta" id="resultsMeta"></div>
+        <div class="results" id="results"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/ui.js"></script>
+  </body>
+</html>

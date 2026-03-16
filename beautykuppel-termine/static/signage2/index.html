@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Signage</title>
+    <link rel="stylesheet" href="./signage2.css" />
+  </head>
+  <body>
+    <div class="viewportWrapper" id="viewport">
+      <div class="scaleWrapper" id="scale">
+        <div class="container" id="container">
+          <div class="backgroundDecor" id="circleMain"></div>
+          <div class="backgroundDecor2" id="circleAccent"></div>
+
+          <div class="heroImage" id="heroCircle">
+            <img id="heroImg" alt="" />
+          </div>
+
+          <div class="massageImage" id="massageCircle">
+            <img id="massageImg" alt="" />
+          </div>
+
+          <header class="header" id="header">
+            <div class="logoIcon" id="logoWrap">
+              <img id="logoImg" alt="" />
+            </div>
+            <div class="logoText">
+              <h1 id="title"></h1>
+              <p id="subtitle"></p>
+            </div>
+          </header>
+
+          <div class="timeDisplayWrapper" id="clockWrap" style="position: absolute; z-index: 20">
+            <div class="timeDisplay" id="clockTime"></div>
+            <div class="timeDate" id="clockDate"></div>
+          </div>
+
+          <main class="main">
+            <div class="title" id="listTitle"></div>
+            <div class="appointmentList" id="list"></div>
+            <div class="emptyState" id="empty" style="display: none"></div>
+            <div class="promoScreen" id="promo" style="display: none"></div>
+          </main>
+
+          <footer class="footer">
+            <div class="qrSection">
+              <div class="qrContainer" id="qrWrap">
+                <img id="qrImg" alt="" />
+              </div>
+              <div class="qrInfoText" id="qrText"></div>
+            </div>
+          </footer>
+
+          <div class="versionTag" id="updatedTag"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./signage2.js"></script>
+  </body>
+</html>
+
