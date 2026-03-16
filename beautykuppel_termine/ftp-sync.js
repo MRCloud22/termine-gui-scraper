@@ -37,6 +37,18 @@ export function computeManifest(rootDir) {
   return manifest;
 }
 
+function normalizeRemoteDir(dir) {
+  if (!dir) return "/";
+  const norm = String(dir).replace(/\\/g, "/").replace(/\/+$/, "");
+  return norm || "/";
+}
+
+function joinRemote(base, rel) {
+  if (!rel || rel === ".") return base;
+  if (base === "/") return `/${rel}`;
+  return `${base}/${rel}`;
+}
+
 export async function ftpUploadChanged({
   localDir,
   remoteDir,
@@ -58,11 +70,12 @@ export async function ftpUploadChanged({
   if (keepAliveMs > 0) client.ftp.verbose = false;
 
   const ensuredDirs = new Set();
-  const ensureRemoteDir = async (dirPath) => {
-    const norm = dirPath.replace(/\/+$/, "") || ".";
+  const ensureRemoteDir = async (dirPath, baseDir) => {
+    const norm = String(dirPath).replace(/\/+$/, "") || "/";
     if (ensuredDirs.has(norm)) return;
     ensuredDirs.add(norm);
     await client.ensureDir(norm);
+    if (baseDir) await client.cd(baseDir);
   };
 
   try {
@@ -74,15 +87,17 @@ export async function ftpUploadChanged({
       secure: !!connection.secure,
     });
 
-    const base = remoteDir || "/";
-    await ensureRemoteDir(base);
+    const base = normalizeRemoteDir(remoteDir || "/");
+    await ensureRemoteDir(base, base);
     await client.cd(base);
 
     for (const rel of changed) {
       const localPath = path.join(localDir, rel.split("/").join(path.sep));
       const remoteParent = path.posix.dirname(rel);
-      if (remoteParent && remoteParent !== ".") await ensureRemoteDir(remoteParent);
-      await client.uploadFrom(localPath, rel);
+      const remoteDirAbs = joinRemote(base, remoteParent);
+      if (remoteParent && remoteParent !== ".") await ensureRemoteDir(remoteDirAbs, base);
+      const remotePath = joinRemote(base, rel);
+      await client.uploadFrom(localPath, remotePath);
     }
 
     return { uploaded: changed, manifest: nextManifest };

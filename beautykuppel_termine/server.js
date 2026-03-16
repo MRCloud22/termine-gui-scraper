@@ -210,6 +210,7 @@ async function publishStaticAndMaybeFtp(cfg) {
     if (!ftpCfg.enabled) return;
     if (!ftpCfg.host) throw new Error("FTP enabled but ftp.host is empty");
     if (!ftpCfg.user) throw new Error("FTP enabled but ftp.user is empty");
+    log("FTP base remote dir:", ftpCfg.remotePath || "/");
 
     const prev = readFtpManifest();
     const forceAll = forceFullUploadOnce === true;
