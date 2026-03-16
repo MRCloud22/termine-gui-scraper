@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 /*
  * Portrait digital-signage layout.
@@ -19,7 +19,7 @@
 .container {
     width: 1080px;
     height: 1920px;
-    background-color: #F4F1E9;
+    background-color: var(--pill-bg, #F4F1E9);
     color: #333;
     font-family: 'Montserrat', sans-serif;
     overflow: hidden;
@@ -160,7 +160,7 @@
 }
 
 .appointmentPill {
-    background-color: #F4F1E9;
+    background-color: var(--pill-bg, #F4F1E9);
     border-radius: 100px;
     padding: 12px 50px 12px 12px;
     display: flex;
@@ -376,4 +376,5 @@
     white-space: nowrap;
     overflow: visible;
 }
+
 

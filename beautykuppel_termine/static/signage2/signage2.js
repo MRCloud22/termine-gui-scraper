@@ -1,10 +1,70 @@
-const REF_W = 1080;
+﻿const REF_W = 1080;
 const REF_H = 1920;
 const VISIBLE_COUNT = 5;
 
 function $(id) {
   return document.getElementById(id);
 }
+
+function fixText(value) {
+  if (typeof value !== "string") return value;
+  if (!value.includes("Ã") && !value.includes("Â")) return value;
+  return value
+    .replaceAll("Ã¼", "\u00fc")
+    .replaceAll("Ãœ", "\u00dc")
+    .replaceAll("Ã¤", "\u00e4")
+    .replaceAll("Ã„", "\u00c4")
+    .replaceAll("Ã¶", "\u00f6")
+    .replaceAll("Ã–", "\u00d6")
+    .replaceAll("ÃŸ", "\u00df")
+    .replaceAll("Â", "");
+}
+
+function normalizeCustom(custom) {
+  const out = { ...(custom || {}) };
+  const keys = ["title", "subtitle", "listTitle", "emptyText", "qrLabel", "qrUrl"];
+  for (const k of keys) out[k] = fixText(out[k]);
+  if (out.promoConfig && typeof out.promoConfig === "object") {
+    out.promoConfig = { ...out.promoConfig, text: fixText(out.promoConfig.text) };
+  }
+  return out;
+}
+
+function applyImageBox(el, cfg, defaults) {
+  const c = { ...defaults, ...(cfg || {}) };
+  if (!el) return;
+  el.style.width = `${c.size}px`;
+  el.style.height = `${c.size}px`;
+  if (c.top != null || c.right != null || c.bottom != null || c.left != null) {
+    el.style.position = "absolute";
+    el.style.top = c.top != null ? `${c.top}px` : "auto";
+    el.style.right = c.right != null ? `${c.right}px` : "auto";
+    el.style.bottom = c.bottom != null ? `${c.bottom}px` : "auto";
+    el.style.left = c.left != null ? `${c.left}px` : "auto";
+    el.style.zIndex = 20;
+  }
+}
+
+function applyTagStyle(el, cfg, defaults) {
+  const c = { ...defaults, ...(cfg || {}) };
+  if (!el) return;
+  if (c.show === false) {
+    el.style.display = "none";
+    return;
+  }
+  el.style.display = "block";
+  if (c.size != null) el.style.fontSize = `${c.size}px`;
+  if (c.color) el.style.color = c.color;
+  if (c.top != null || c.right != null || c.bottom != null || c.left != null) {
+    el.style.position = "absolute";
+    el.style.top = c.top != null ? `${c.top}px` : "auto";
+    el.style.right = c.right != null ? `${c.right}px` : "auto";
+    el.style.bottom = c.bottom != null ? `${c.bottom}px` : "auto";
+    el.style.left = c.left != null ? `${c.left}px` : "auto";
+    el.style.transform = "none";
+  }
+}
+
 
 function filterPastAppointments(appointments) {
   const now = new Date();
@@ -131,6 +191,7 @@ async function main() {
   try {
     const settings = await fetchJson("../settings.json");
     custom = settings?.signage2 || settings || {};
+    custom = normalizeCustom(custom);
     appSettings = settings?.appSettings || settings || {};
   } catch {
     custom = {};
@@ -138,8 +199,17 @@ async function main() {
   }
 
   const container = $("container");
+  if (custom.pillColor) {
+    container.style.setProperty("--pill-bg", custom.pillColor);
+  }
   const bg = custom.backgroundColor || "#F4F1E9";
   container.style.backgroundColor = bg;
+  if (custom.backgroundImage && custom.backgroundImage !== "none") {
+    container.style.backgroundImage = `url(${mediaBase + custom.backgroundImage})`;
+    container.style.backgroundSize = "cover";
+    container.style.backgroundPosition = "center";
+    container.style.backgroundRepeat = "no-repeat";
+  }
   if (custom.theme === "dark") container.classList.add("darkTheme");
 
   // Circles
@@ -154,7 +224,18 @@ async function main() {
   $("heroImg").src = mediaBase + (custom.heroImage || "spa-hero.png");
   $("massageImg").src = mediaBase + (custom.massageImage || "massage.png");
   $("logoImg").src = mediaBase + (custom.logo || "logo.png");
+  const logoCfg = custom.logoConfig || {};
+  applyImageBox($("logoWrap"), logoCfg, { size: 90 });
+  $("logoImg").style.width = "100%";
+  $("logoImg").style.height = "100%";
+  $("logoImg").style.objectFit = "contain";
+
   $("qrImg").src = mediaBase + (custom.qrCode || "qr-code.png");
+  const qrCfg = custom.qrConfig || {};
+  applyImageBox($("qrWrap"), qrCfg, { size: 150 });
+  $("qrImg").style.width = "100%";
+  $("qrImg").style.height = "100%";
+  $("qrImg").style.objectFit = "contain";
 
   $("title").textContent = custom.title || "BEAUTYKUPPEL";
   $("subtitle").textContent = custom.subtitle || "Therme Bad Aibling";
@@ -209,6 +290,7 @@ async function main() {
       if (data?.success) {
         all = filterPastAppointments(data.appointments || []);
         $("updatedTag").textContent = data.lastUpdated ? `last updated: ${data.lastUpdated}` : "";
+        applyTagStyle($("updatedTag"), custom.lastUpdatedConfig, { show: true, size: 11, bottom: 5, left: 40, color: "rgba(0, 0, 0, 0.3)" });
       }
     } catch {
       // ignore
@@ -279,4 +361,9 @@ async function main() {
 }
 
 main().catch(() => {});
+
+
+
+
+
 
