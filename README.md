@@ -14,19 +14,19 @@ Hinweis: Die automatische Aktualisierung laeuft serverseitig im Add-on weiter, a
 
 ## Lokal starten
 
-1. `cd beautykuppel-termine`
+1. `cd beautykuppel_termine`
 2. `npm.cmd install`
 3. `npm.cmd run start`
 4. Browser: `http://localhost:8099`
 
 Die Daten werden unter `./data/` gespeichert:
-- `beautykuppel-termine/data/config.json`
-- `beautykuppel-termine/data/results.json`
-- `beautykuppel-termine/data/status.json`
+- `beautykuppel_termine/data/config.json`
+- `beautykuppel_termine/data/results.json`
+- `beautykuppel_termine/data/status.json`
 
 ## Statische Seiten (Webspace)
 
-Beim Start und nach jedem Abruf erzeugt die App eine statische Ausgabe unter `beautykuppel-termine/data/out/` (geeignet fuer FTP Upload).
+Beim Start und nach jedem Abruf erzeugt die App eine statische Ausgabe unter `beautykuppel_termine/data/out/` (geeignet fuer FTP Upload).
 Wichtig:
 - `data/out/list/` entspricht `/list`
 - `data/out/signage2/` entspricht `/signage2`

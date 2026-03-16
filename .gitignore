@@ -1,8 +1,8 @@
-beautykuppel-termine/node_modules/
-beautykuppel-termine/.npm-cache/
-beautykuppel-termine/data/
-beautykuppel-termine/data/out/
-beautykuppel-termine/data/ftp-manifest.json
+beautykuppel_termine/node_modules/
+beautykuppel_termine/.npm-cache/
+beautykuppel_termine/data/
+beautykuppel_termine/data/out/
+beautykuppel_termine/data/ftp-manifest.json
 data/
 data_smoke/
 data_smoke2/

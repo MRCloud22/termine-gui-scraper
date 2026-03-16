@@ -1,5 +1,4 @@
-﻿ARG BUILD_FROM=node:24-alpine
-FROM ${BUILD_FROM}
+﻿FROM node:24-alpine
 
 WORKDIR /app
 
@@ -15,4 +14,5 @@ ENV PORT=8099
 ENV DATA_DIR=/data
 
 CMD ["node", "server.js"]
+
 
