@@ -8,7 +8,7 @@ function ensureDir(dirPath) {
 
 function copyDir(srcDir, destDir) {
   ensureDir(destDir);
-  fs.cpSync(srcDir, destDir, { recursive: true });
+  fs.cpSync(srcDir, destDir, { recursive: true, force: true });
 }
 
 function copyFileIfMissing(src, dest) {
@@ -181,12 +181,11 @@ export function buildStaticOut({
   }
   const mediaDir = path.join(outDir, "media");
   if (configMediaDir && fs.existsSync(configMediaDir)) {
-    copyDirFiles(configMediaDir, mediaDir, { overwrite: true });
+    copyDir(configMediaDir, mediaDir);
   }
   if (fs.existsSync(mediaDir)) {
     const signage2MediaDir = path.join(signage2Dir, "media");
-    ensureDir(signage2MediaDir);
-    copyDirFiles(mediaDir, signage2MediaDir, { overwrite: true });
+    copyDir(mediaDir, signage2MediaDir);
   }
 
   // Write appointments.json (old naming) and also results.json (new naming)
