@@ -87,6 +87,7 @@ let categoriesCache = null;
 let timer = null;
 let runInProgress = false;
 let publishInProgress = false;
+let forceFullUploadOnce = true;
 
 
 function readHaOptions() {
@@ -205,6 +206,10 @@ async function publishStaticAndMaybeFtp(cfg) {
     if (!ftpCfg.user) throw new Error("FTP enabled but ftp.user is empty");
 
     const prev = readFtpManifest();
+    const forceAll = forceFullUploadOnce === true;
+    if (forceAll) {
+      console.log("FTP upload: full sync on startup");
+    }
     const { uploaded, manifest } = await ftpUploadChanged({
       localDir: built.outDir,
       remoteDir: ftpCfg.remotePath || "/",
@@ -216,7 +221,15 @@ async function publishStaticAndMaybeFtp(cfg) {
         secure: !!ftpCfg.secure,
       },
       previousManifest: prev,
+      forceAll,
     });
+    if (uploaded.length) {
+      console.log("FTP uploaded " + uploaded.length + " file(s):");
+      for (const file of uploaded) console.log("FTP uploaded", file);
+    } else {
+      console.log("FTP upload: no changes");
+    }
+    forceFullUploadOnce = false;
     writeFtpManifest(manifest);
     writeStatus({
       lastFtpUploadAt: new Date().toISOString(),

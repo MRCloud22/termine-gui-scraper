@@ -43,11 +43,14 @@ export async function ftpUploadChanged({
   connection,
   previousManifest,
   keepAliveMs = 0,
+  forceAll = false,
 }) {
   const nextManifest = computeManifest(localDir);
-  const changed = Object.entries(nextManifest)
-    .filter(([rel, hash]) => previousManifest?.[rel] !== hash)
-    .map(([rel]) => rel);
+  const changed = forceAll
+    ? Object.keys(nextManifest)
+    : Object.entries(nextManifest)
+        .filter(([rel, hash]) => previousManifest?.[rel] !== hash)
+        .map(([rel]) => rel);
 
   if (!changed.length) return { uploaded: [], manifest: nextManifest };
 

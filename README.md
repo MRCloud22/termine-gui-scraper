@@ -70,3 +70,4 @@ Das Add-on legt bei laufendem Betrieb einen Ordner an:
 
 Diese Dateien sind per Samba bearbeitbar und werden fuer /signage2 und /list genutzt.
 
+

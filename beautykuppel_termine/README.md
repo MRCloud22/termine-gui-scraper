@@ -23,6 +23,12 @@ Im Home Assistant wird ein Ordner angelegt, der per Samba erreichbar ist:
 Wenn `settings.json` dort vorhanden ist, wird sie fuer `/signage2` und `/list` verwendet.
 Bilder in `/config/beautykuppel_termine/media/` ueberschreiben die Standardbilder.
 
+## FTP Upload
+
+- Beim Start des Add-ons wird **immer** ein kompletter Upload von `/data/out/` durchgefuehrt.
+- Danach werden nur geaenderte Dateien hochgeladen (z. B. `appointments.json`, `rss.xml`, `settings.json`).
+- FTP Uploads werden im Add-on Log gelistet.
+
 ## Add-on Optionen
 
 - `refreshMinutes`: Intervall in Minuten (0 deaktiviert Timer, manuell via GUI)
