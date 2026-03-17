@@ -1,4 +1,4 @@
-﻿import crypto from "node:crypto";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -111,12 +111,18 @@ export function buildRssXml(appointmentsJson, settings) {
         .update(`${app.date}-${app.time}-${app.treatment}`)
         .digest("hex");
       const timeFormatted = String(app.time || "").replace(":", ".");
-      const priceFormatted = String(app.price || "").replace(/\.00\s*â‚¬?$/, "").replace(/â‚¬/, "").trim();
-      const priceDisplay = priceFormatted ? `${priceFormatted} â‚¬` : "";
+      const rawPrice = String(app.price || "").trim();
+      const priceWithoutCurrency = rawPrice
+        .replace(/\u00a0/g, " ")
+        .replace(/[^0-9,.-]/g, "")
+        .trim();
+      const priceDisplay = priceWithoutCurrency
+        ? `\u20ac ${priceWithoutCurrency}`
+        : "";
 
       rss +=
         `\n  <item>\n` +
-        `    <title>${escapeXml(`${app.treatment} um ${timeFormatted} Uhr${priceDisplay ? ` fuer ${priceDisplay}` : ""}`)}</title>\n` +
+        `    <title>${escapeXml(`${app.treatment} um ${timeFormatted} Uhr${priceDisplay ? ` f\u00fcr ${priceDisplay}` : ""}`)}</title>\n` +
         `    <link>${escapeXml(String(app.bookingUrl || ""))}</link>\n` +
         `    <guid isPermaLink=\"false\">${guid}</guid>\n` +
         `    <pubDate>${new Date().toUTCString()}</pubDate>\n` +
@@ -200,4 +206,3 @@ export function buildStaticOut({
 
   return { outDir, appointmentsJson, settings, settingsSource: preferredSettingsPath, configBaseDir };
 }
-
