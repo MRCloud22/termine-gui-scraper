@@ -331,7 +331,7 @@ async function main() {
 
   const emptyText = custom.emptyText != null ? custom.emptyText : "Aktuell sind keine freien Termine vorhanden.";
 
-  const rotationIntervalSec = Number(appSettings.signageRotationInterval || custom.signageRotationInterval || 8) || 8;
+  const rotationIntervalSec = Number(custom.appointmentPageSeconds ?? appSettings.signageRotationInterval ?? custom.signageRotationInterval ?? 8) || 8;
   const promoEnabled = custom.promoConfig?.show !== false && !!custom.promoConfig?.text;
   const promoDurationSec = Number(custom.promoConfig?.duration ?? 8) || 8;
 
@@ -403,24 +403,41 @@ async function main() {
   }
 
   async function step() {
+    if (showingPromo) return;
     await fetchAppointments();
     render();
 
-    if (all.length <= VISIBLE_COUNT) {
+    if (!all.length) {
       visibleStart = 0;
       return;
     }
 
-    visibleStart += VISIBLE_COUNT;
-    if (visibleStart >= all.length) visibleStart = 0;
-
-    if (promoEnabled) {
-      showingPromo = true;
-      render();
-      setTimeout(() => {
-        showingPromo = false;
+    if (all.length <= VISIBLE_COUNT) {
+      visibleStart = 0;
+      if (promoEnabled) {
+        showingPromo = true;
         render();
-      }, promoDurationSec * 1000);
+        setTimeout(() => {
+          showingPromo = false;
+          render();
+        }, promoDurationSec * 1000);
+      }
+      return;
+    }
+
+    const nextStart = visibleStart + VISIBLE_COUNT;
+    if (nextStart >= all.length) {
+      visibleStart = 0;
+      if (promoEnabled) {
+        showingPromo = true;
+        render();
+        setTimeout(() => {
+          showingPromo = false;
+          render();
+        }, promoDurationSec * 1000);
+      }
+    } else {
+      visibleStart = nextStart;
     }
   }
 

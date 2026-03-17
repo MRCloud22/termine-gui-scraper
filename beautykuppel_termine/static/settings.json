@@ -8,6 +8,7 @@
         "heroImage": "spa-hero.png",
         "massageImage": "massage.png",
         "qrCode": "qr-code.png",
+        "appointmentPageSeconds": 8,
         "listTitle": "FREIE TERMINE HEUTE",
         "emptyText": "",
         "qrLabel": "Infos & Buchung unter",
