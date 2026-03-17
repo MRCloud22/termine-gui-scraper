@@ -27,11 +27,13 @@ function listFilesRecursive(rootDir) {
   return out;
 }
 
-export function computeManifest(rootDir) {
+export function computeManifest(rootDir, { excludeRelPaths = [] } = {}) {
   const files = listFilesRecursive(rootDir);
   const manifest = {};
+  const excluded = new Set((excludeRelPaths || []).map((p) => String(p)));
   for (const filePath of files) {
     const rel = toPosixPath(path.relative(rootDir, filePath));
+    if (excluded.has(rel)) continue;
     manifest[rel] = sha256File(filePath);
   }
   return manifest;
@@ -54,10 +56,11 @@ export async function ftpUploadChanged({
   remoteDir,
   connection,
   previousManifest,
+  excludeRelPaths = [],
   keepAliveMs = 0,
   forceAll = false,
 }) {
-  const nextManifest = computeManifest(localDir);
+  const nextManifest = computeManifest(localDir, { excludeRelPaths });
   const changed = forceAll
     ? Object.keys(nextManifest)
     : Object.entries(nextManifest)

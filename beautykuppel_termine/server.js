@@ -243,6 +243,7 @@ async function publishStaticAndMaybeFtp(cfg) {
     if (!ftpCfg.host) throw new Error("FTP enabled but ftp.host is empty");
     if (!ftpCfg.user) throw new Error("FTP enabled but ftp.user is empty");
     log("FTP base remote dir:", ftpCfg.remotePath || "/");
+    log("FTP excluded files:", "results.json");
 
     const prev = readFtpManifest();
     const forceAll = forceFullUploadOnce === true;
@@ -260,6 +261,7 @@ async function publishStaticAndMaybeFtp(cfg) {
         secure: !!ftpCfg.secure,
       },
       previousManifest: prev,
+      excludeRelPaths: ["results.json"],
       forceAll,
     });
     log("FTP manifest entries:", Object.keys(manifest || {}).length);
