@@ -195,16 +195,40 @@ export async function fetchTreatmentsFromAllReservationCategories({ throttleMs =
 }
 
 export async function fetchAvailabilityForDay(templateId, isoDate) {
-  const d = new Date(`${isoDate}T00:00:00`);
-  const day = String(d.getDate());
-  const month = String(d.getMonth() + 1);
-  const year = String(d.getFullYear());
+  return fetchAvailabilityPage(templateId, isoDate, null);
+}
 
-  const params = new URLSearchParams({ day, month, year });
+export async function fetchAvailabilityPage(templateId, isoDate, nextCursorIso = null) {
+  const d = new Date(`${isoDate}T00:00:00`);
+  const params = new URLSearchParams({
+    day: String(d.getDate()),
+    month: String(d.getMonth() + 1),
+    year: String(d.getFullYear()),
+  });
+
+  if (nextCursorIso) {
+    const m = String(nextCursorIso).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    if (m) {
+      params.set("day", String(Number(m[3])));
+      params.set("month", String(Number(m[2])));
+      params.set("year", m[1]);
+      params.set("from", `${m[4]}:${m[5]}`);
+      params.set("next", "1");
+    }
+  }
+
   const url = `${BASE}/reservations/template/${templateId}/availability/?${params.toString()}`;
   const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
   if (!res.ok) throw new Error(`availability ${templateId} ${isoDate}: HTTP ${res.status}`);
   return res.text();
+}
+
+export function parseAvailabilityNextCursor(html) {
+  return (
+    html.match(
+      /reservation-availabilities__buttons__next[\s\S]*?data-time="([^"]+)"/,
+    )?.[1] || null
+  );
 }
 
 export function parseAvailabilitiesHtml(html) {

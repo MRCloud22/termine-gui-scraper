@@ -5,10 +5,12 @@ import { readJson, writeJson } from "./storage.js";
 import {
   buildBookingUrl,
   enumerateIsoDates,
+  fetchAvailabilityPage,
   fetchAvailabilityForDay,
   fetchTreatmentsFromAllReservationCategories,
   formatDateDe,
   parseAvailabilitiesHtml,
+  parseAvailabilityNextCursor,
 } from "./scraper.js";
 import { buildStaticOut } from "./static-site.js";
 import { ftpUploadChanged } from "./ftp-sync.js";
@@ -419,47 +421,71 @@ async function runQueryOnce() {
       let lastSelectedTs = null;
       let templateRequests = 0;
       let templateSlotsParsed = 0;
+      const maxPageRequestsPerDay = Math.max(
+        1,
+        Number(process.env.AVAILABILITY_MAX_PAGES_PER_DAY || 120) || 120,
+      );
 
       for (const iso of isoDates) {
-        const html = await fetchAvailabilityForDay(templateId, iso);
-        templateRequests += 1;
-        totalAvailabilityRequests += 1;
-        const slots = parseAvailabilitiesHtml(html);
-        templateSlotsParsed += slots.length;
-        totalSlotsParsed += slots.length;
+        const seenSlotTs = new Set();
+        let nextCursor = null;
+        let dayRequests = 0;
 
-        for (const s of slots) {
-          if (selected.length >= rule.maxResults) break;
+        while (dayRequests < maxPageRequestsPerDay) {
+          const html = await fetchAvailabilityPage(templateId, iso, nextCursor);
+          dayRequests += 1;
+          templateRequests += 1;
+          totalAvailabilityRequests += 1;
 
-          const slotTs = isoTimeToEpochMs(iso, s.time);
-          if (slotTs == null) continue;
+          const slots = parseAvailabilitiesHtml(html);
+          templateSlotsParsed += slots.length;
+          totalSlotsParsed += slots.length;
 
-          if (startTs != null && slotTs < startTs) continue;
-          if (endTs != null && slotTs > endTs) break;
+          for (const s of slots) {
+            if (selected.length >= rule.maxResults) break;
 
-          if (lastSelectedTs != null && rule.minGapMinutes > 0) {
-            const minGapMs = rule.minGapMinutes * 60 * 1000;
-            if (slotTs - lastSelectedTs < minGapMs) continue;
+            const slotTs = isoTimeToEpochMs(iso, s.time);
+            if (slotTs == null) continue;
+            if (seenSlotTs.has(slotTs)) continue;
+            seenSlotTs.add(slotTs);
+
+            if (startTs != null && slotTs < startTs) continue;
+            if (endTs != null && slotTs > endTs) break;
+
+            if (lastSelectedTs != null && rule.minGapMinutes > 0) {
+              const minGapMs = rule.minGapMinutes * 60 * 1000;
+              if (slotTs - lastSelectedTs < minGapMs) continue;
+            }
+
+            lastSelectedTs = slotTs;
+            selected.push({
+              __sortKey: slotTs,
+              date: formatDateDe(iso),
+              time: s.time,
+              treatment: s.treatmentName || tInfo.name,
+              price: s.price || "",
+              originalPrice: s.originalPrice,
+              bookingUrl: buildBookingUrl(templateId, iso, s.time),
+              imageUrl: tInfo.imageUrl || "",
+            });
           }
 
-          lastSelectedTs = slotTs;
-          selected.push({
-            __sortKey: slotTs,
-            date: formatDateDe(iso),
-            time: s.time,
-            treatment: s.treatmentName || tInfo.name,
-            price: s.price || "",
-            originalPrice: s.originalPrice,
-            bookingUrl: buildBookingUrl(templateId, iso, s.time),
-            imageUrl: tInfo.imageUrl || "",
-          });
+          if (selected.length >= rule.maxResults) break;
+
+          // Nothing in first response for that day -> stop immediately.
+          if (dayRequests === 1 && slots.length === 0) break;
+
+          const nextFrom = parseAvailabilityNextCursor(html);
+          if (!nextFrom || nextFrom === nextCursor) break;
+          nextCursor = nextFrom;
+
+          if (throttleMs > 0) {
+            // eslint-disable-next-line no-await-in-loop
+            await new Promise((r) => setTimeout(r, throttleMs));
+          }
         }
 
         if (selected.length >= rule.maxResults) break;
-        if (throttleMs > 0) {
-          // eslint-disable-next-line no-await-in-loop
-          await new Promise((r) => setTimeout(r, throttleMs));
-        }
       }
 
       if (selected.length > 0) templatesWithHits += 1;
