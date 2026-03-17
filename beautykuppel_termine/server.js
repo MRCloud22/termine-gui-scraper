@@ -126,6 +126,31 @@ let timer = null;
 let runInProgress = false;
 let publishInProgress = false;
 let forceFullUploadOnce = true;
+let ftpRetryTimer = null;
+const FTP_RETRY_DELAY_MS = 30 * 1000;
+
+function isFtpTimeoutError(msg) {
+  const text = String(msg || "");
+  return /timeout/i.test(text) && (/control socket/i.test(text) || /ftp/i.test(text));
+}
+
+function scheduleFtpRetry(cfg) {
+  if (ftpRetryTimer) {
+    log("FTP retry is already scheduled; skipping duplicate schedule");
+    return;
+  }
+  const delaySec = Math.round(FTP_RETRY_DELAY_MS / 1000);
+  log(`FTP timeout detected; scheduling retry in ${delaySec}s`);
+  ftpRetryTimer = setTimeout(() => {
+    ftpRetryTimer = null;
+    const latestCfg = cfg || readConfig();
+    log("FTP retry starting after timeout");
+    publishStaticAndMaybeFtp(latestCfg).catch((err) => {
+      const retryMsg = err?.message || String(err);
+      log("FTP retry failed:", retryMsg);
+    });
+  }, FTP_RETRY_DELAY_MS);
+}
 
 
 function readHaOptions() {
@@ -222,6 +247,12 @@ async function publishStaticAndMaybeFtp(cfg) {
   if (publishInProgress) return;
   publishInProgress = true;
   try {
+    if (ftpRetryTimer) {
+      clearTimeout(ftpRetryTimer);
+      ftpRetryTimer = null;
+      log("Cleared pending FTP retry because publish started");
+    }
+
     const results = readResults();
     const staticEnabled = !(cfg && cfg.staticExport && cfg.staticExport.enabled === false);
     if (!staticEnabled) return;
@@ -284,6 +315,7 @@ async function publishStaticAndMaybeFtp(cfg) {
     const msg = e && e.message ? e.message : String(e);
     writeStatus({ lastPublishError: msg, lastFtpUploadError: msg });
     log("Publish/FTP error:", msg);
+    if (isFtpTimeoutError(msg)) scheduleFtpRetry(cfg);
   } finally {
     publishInProgress = false;
   }
