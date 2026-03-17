@@ -43,6 +43,16 @@
             "top": 160,
             "right": 50
         },
+        "contentConfig": {
+            "top": 0,
+            "left": 50,
+            "right": 50,
+            "titleMarginTop": 320,
+            "titleMarginBottom": 50,
+            "titleSize": 64,
+            "listMaxWidth": 940,
+            "listGap": 22
+        },
         "timeConfig": {
             "show": true,
             "size": 48,

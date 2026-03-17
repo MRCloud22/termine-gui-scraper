@@ -274,6 +274,29 @@ async function main() {
     .replaceAll("\\n", "<br/>")
     .replaceAll("\n", "<br/>");
 
+  const contentCfg = custom.contentConfig || {};
+  const mainEl = document.querySelector(".main");
+  if (mainEl) {
+    mainEl.style.paddingLeft = `${contentCfg.left ?? 50}px`;
+    mainEl.style.paddingRight = `${contentCfg.right ?? 50}px`;
+    if (contentCfg.top != null) {
+      mainEl.style.transform = `translateY(${contentCfg.top}px)`;
+    }
+  }
+  const listTitleEl = $("listTitle");
+  if (listTitleEl) {
+    listTitleEl.style.marginTop = `${contentCfg.titleMarginTop ?? 320}px`;
+    listTitleEl.style.marginBottom = `${contentCfg.titleMarginBottom ?? 50}px`;
+    if (contentCfg.titleSize != null) {
+      listTitleEl.style.fontSize = `${contentCfg.titleSize}px`;
+    }
+  }
+  const listElCfg = $("list");
+  if (listElCfg) {
+    listElCfg.style.maxWidth = `${contentCfg.listMaxWidth ?? 940}px`;
+    listElCfg.style.gap = `${contentCfg.listGap ?? 22}px`;
+  }
+
   // Clock positioning
   const timeCfg = custom.timeConfig || {};
   const clockWrap = $("clockWrap");

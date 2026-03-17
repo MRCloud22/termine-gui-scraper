@@ -1,10 +1,19 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 /*
  * Portrait digital-signage layout.
  * Reference canvas: 1080 x 1920 (Full-HD portrait).
  * JS applies transform: scale() so it looks identical at any size.
  */
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
 
 .scaleWrapper {
     width: 1080px;
@@ -35,10 +44,11 @@
 }
 
 .viewportWrapper {
+    position: fixed;
+    inset: 0;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    position: relative;
     background: #000;
 }
 
@@ -376,5 +386,6 @@
     white-space: nowrap;
     overflow: visible;
 }
+
 
 
