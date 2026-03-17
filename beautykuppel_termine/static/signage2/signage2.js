@@ -1,4 +1,4 @@
-﻿const REF_W = 1080;
+const REF_W = 1080;
 const REF_H = 1920;
 const VISIBLE_COUNT = 5;
 
@@ -400,7 +400,11 @@ async function main() {
     listEl.innerHTML = "";
     const slice = all.slice(visibleStart, visibleStart + VISIBLE_COUNT);
     const fallbackImage = mediaBase + "facial.png";
-    for (const apt of slice) listEl.appendChild(buildPill(apt, fallbackImage));
+    slice.forEach((apt, index) => {
+      const pill = buildPill(apt, fallbackImage);
+      pill.style.animationDelay = `${Math.max(0, index) * 0.12}s`;
+      listEl.appendChild(pill);
+    });
   }
 
   async function step() {

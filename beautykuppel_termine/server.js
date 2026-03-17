@@ -331,13 +331,13 @@ async function getTreatments(force = false) {
 }
 
 function defaultRule() {
-  return { enabled: true, maxResults: 2, minGapMinutes: 0 };
+  return { enabled: true, maxResults: 2, minGapMinutes: 60 };
 }
 
 function normalizeRule(raw) {
   const enabled = raw?.enabled !== false;
   const maxResults = Math.max(0, Number(raw?.maxResults ?? 2) || 0);
-  const minGapMinutes = Math.max(0, Number(raw?.minGapMinutes ?? 0) || 0);
+  const minGapMinutes = Math.max(0, Number(raw?.minGapMinutes ?? 60) || 0);
   return { enabled, maxResults, minGapMinutes };
 }
 

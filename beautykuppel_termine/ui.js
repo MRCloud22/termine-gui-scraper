@@ -1,4 +1,4 @@
-﻿const $ = (id) => document.getElementById(id);
+const $ = (id) => document.getElementById(id);
 
 function todayIso() {
   const d = new Date();
@@ -82,13 +82,13 @@ let showSelectedOnly = false;
 let useTodayWindow = true;
 
 function defaultRule() {
-  return { enabled: true, maxResults: 2, minGapMinutes: 0 };
+  return { enabled: true, maxResults: 2, minGapMinutes: 60 };
 }
 
 function normalizeRule(rule) {
   const enabled = rule?.enabled !== false;
   const maxResults = Math.max(0, Number(rule?.maxResults ?? 2) || 0);
-  const minGapMinutes = Math.max(0, Number(rule?.minGapMinutes ?? 0) || 0);
+  const minGapMinutes = Math.max(0, Number(rule?.minGapMinutes ?? 60) || 0);
   return { enabled, maxResults, minGapMinutes };
 }
 
