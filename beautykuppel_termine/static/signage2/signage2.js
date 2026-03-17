@@ -188,14 +188,25 @@ async function main() {
 
   let custom = {};
   let appSettings = {};
-  try {
+  let settingsSignature = "";
+
+  async function loadSettingsSnapshot() {
     const settings = await fetchJson("../settings.json");
-    custom = settings?.signage2 || settings || {};
-    custom = normalizeCustom(custom);
-    appSettings = settings?.appSettings || settings || {};
+    const nextCustom = normalizeCustom(settings?.signage2 || settings || {});
+    const nextAppSettings = settings?.appSettings || settings || {};
+    const signature = JSON.stringify([nextCustom, nextAppSettings]);
+    return { nextCustom, nextAppSettings, signature };
+  }
+
+  try {
+    const snapshot = await loadSettingsSnapshot();
+    custom = snapshot.nextCustom;
+    appSettings = snapshot.nextAppSettings;
+    settingsSignature = snapshot.signature;
   } catch {
     custom = {};
     appSettings = {};
+    settingsSignature = "";
   }
 
   const mediaBase = "../media/";
@@ -396,6 +407,16 @@ async function main() {
 
   setInterval(step, rotationIntervalSec * 1000);
   setInterval(fetchAppointments, 60000);
+  setInterval(async () => {
+    try {
+      const snapshot = await loadSettingsSnapshot();
+      if (snapshot.signature !== settingsSignature) {
+        window.location.reload();
+      }
+    } catch {
+      // ignore
+    }
+  }, 15000);
 }
 
 main().catch(() => {});

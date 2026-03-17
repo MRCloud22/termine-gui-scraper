@@ -44,6 +44,28 @@ function resolveConfigDir() {
   }
 }
 
+function resolveConfigBaseDir() {
+  const cfgDir = resolveConfigDir();
+  return cfgDir ? path.join(cfgDir, "beautykuppel_termine") : null;
+}
+
+function resolvePreferredSettingsPath() {
+  const configBaseDir = resolveConfigBaseDir();
+  const configSettingsPath = configBaseDir ? path.join(configBaseDir, "settings.json") : null;
+  const outSettingsPath = path.join(STATIC_OUT_DIR, "settings.json");
+  const defaultSettingsPath = path.join(STATIC_SRC_DIR, "settings.json");
+  if (configSettingsPath && fs.existsSync(configSettingsPath)) return configSettingsPath;
+  if (fs.existsSync(outSettingsPath)) return outSettingsPath;
+  return defaultSettingsPath;
+}
+
+function resolvePreferredMediaDir() {
+  const configBaseDir = resolveConfigBaseDir();
+  const configMediaDir = configBaseDir ? path.join(configBaseDir, "media") : null;
+  if (configMediaDir && fs.existsSync(configMediaDir)) return configMediaDir;
+  return path.join(STATIC_OUT_DIR, "media");
+}
+
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -455,6 +477,18 @@ function startTimerFromConfig() {
     }
   }, ms);
 }
+
+// Serve dynamic settings/media first so signage changes in /config are visible immediately.
+app.get("/settings.json", (req, res) => {
+  res.type("application/json").sendFile(resolvePreferredSettingsPath());
+});
+app.get("/signage2/settings.json", (req, res) => {
+  res.type("application/json").sendFile(resolvePreferredSettingsPath());
+});
+app.use("/media", express.static(resolvePreferredMediaDir()));
+app.use("/media", express.static(path.join(STATIC_OUT_DIR, "media")));
+app.use("/signage2/media", express.static(resolvePreferredMediaDir()));
+app.use("/signage2/media", express.static(path.join(STATIC_OUT_DIR, "media")));
 
 // Serve generated static pages (also useful for local preview)
 app.use("/list", express.static(path.join(STATIC_OUT_DIR, "list")));
