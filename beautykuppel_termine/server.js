@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readJson, writeJson } from "./storage.js";
@@ -733,14 +733,16 @@ app.post("/api/stop", (req, res) => {
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   log(`Beautykuppel Termine running on http://localhost:${PORT}`);
-  // restore timer on restart
-  startTimerFromConfig();
-  // ensure static pages exist even before first scrape
-  publishStaticAndMaybeFtp(readConfig()).catch(() => {});
+  // Start one scrape immediately on app startup, then continue with configured interval.
+  runQueryOnce()
+    .catch((e) => {
+      const msg = e?.message || String(e);
+      log("Startup scrape failed:", msg);
+      // ensure static pages exist even when startup scrape fails
+      return publishStaticAndMaybeFtp(readConfig()).catch(() => {});
+    })
+    .finally(() => {
+      // restore timer on restart
+      startTimerFromConfig();
+    });
 });
-
-
-
-
-
-
