@@ -296,6 +296,7 @@ async function main() {
     listElCfg.style.maxWidth = `${contentCfg.listMaxWidth ?? 940}px`;
     listElCfg.style.gap = `${contentCfg.listGap ?? 22}px`;
   }
+  container.style.setProperty("--time-treatment-gap", `${contentCfg.timeTreatmentGap ?? 2}px`);
 
   // Clock positioning
   const timeCfg = custom.timeConfig || {};

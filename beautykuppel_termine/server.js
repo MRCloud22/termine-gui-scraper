@@ -358,8 +358,12 @@ function datePartFromDateTimeLocal(value) {
 }
 
 async function runQueryOnce() {
-  if (runInProgress) return;
+  if (runInProgress) {
+    log("Scrape skipped: previous run is still active");
+    return;
+  }
   runInProgress = true;
+  const runStartMs = Date.now();
   const cfg = readConfig();
   const enabled = getEnabledTemplateIdsAndRules(cfg);
   if (!enabled.size) {
@@ -370,9 +374,14 @@ async function runQueryOnce() {
       running: false,
       runStartedAt: null,
     });
+    log("Scrape run finished: no enabled treatments, results cleared");
     runInProgress = false;
     return;
   }
+
+  let totalAvailabilityRequests = 0;
+  let totalSlotsParsed = 0;
+  let templatesWithHits = 0;
 
   try {
     writeStatus({ running: true, runStartedAt: new Date().toISOString(), lastError: null });
@@ -397,16 +406,25 @@ async function runQueryOnce() {
     const endDate = datePartFromDateTimeLocal(endDt) || cfg.endDate;
     const isoDates = enumerateIsoDates(startDate, endDate);
     const throttleMs = Math.max(0, Number(process.env.AVAILABILITY_THROTTLE_MS || 150) || 0);
+    log(
+      `Scrape run started: templates=${enabled.size}, dates=${isoDates.length}, range=${startDt}..${endDt}, throttleMs=${throttleMs}`,
+    );
 
     const out = [];
     for (const [templateId, rule] of enabled.entries()) {
       const tInfo = byId.get(templateId) || { name: `Template ${templateId}`, imageUrl: "" };
       const selected = [];
       let lastSelectedTs = null;
+      let templateRequests = 0;
+      let templateSlotsParsed = 0;
 
       for (const iso of isoDates) {
         const html = await fetchAvailabilityForDay(templateId, iso);
+        templateRequests += 1;
+        totalAvailabilityRequests += 1;
         const slots = parseAvailabilitiesHtml(html);
+        templateSlotsParsed += slots.length;
+        totalSlotsParsed += slots.length;
 
         for (const s of slots) {
           if (selected.length >= rule.maxResults) break;
@@ -442,7 +460,11 @@ async function runQueryOnce() {
         }
       }
 
-    out.push(...selected);
+      if (selected.length > 0) templatesWithHits += 1;
+      log(
+        `Scrape template ${templateId} (${tInfo.name}): requests=${templateRequests}, slots=${templateSlotsParsed}, hits=${selected.length}, maxResults=${rule.maxResults}, minGapMinutes=${rule.minGapMinutes}`,
+      );
+      out.push(...selected);
     }
 
     out.sort((a, b) => {
@@ -453,10 +475,22 @@ async function runQueryOnce() {
     });
 
     for (const e of out) delete e.__sortKey;
+    const uniqueTreatments = new Set(
+      out.map((entry) => String(entry.treatment || "").trim()).filter(Boolean),
+    ).size;
+    const durationSec = ((Date.now() - runStartMs) / 1000).toFixed(1);
+    log(
+      `Scrape run finished: requests=${totalAvailabilityRequests}, slots=${totalSlotsParsed}, appointments=${out.length}, treatmentsWithSlots=${uniqueTreatments}, templatesWithHits=${templatesWithHits}, durationSec=${durationSec}`,
+    );
     writeResults(out);
     writeStatus({ lastRunAt: new Date().toISOString(), lastError: null, running: false, runStartedAt: null });
     // Build static files and optionally upload them (e.g. appointments.json, rss.xml, /list, /signage2)
     await publishStaticAndMaybeFtp(cfg);
+  } catch (e) {
+    const msg = e?.message || String(e);
+    log("Scrape run error:", msg);
+    writeStatus({ lastRunAt: new Date().toISOString(), lastError: msg, running: false, runStartedAt: null });
+    throw e;
   } finally {
     runInProgress = false;
     writeStatus({ running: false, runStartedAt: null });

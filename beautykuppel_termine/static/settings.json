@@ -52,7 +52,8 @@
             "titleMarginBottom": 50,
             "titleSize": 64,
             "listMaxWidth": 940,
-            "listGap": 22
+            "listGap": 22,
+            "timeTreatmentGap": 2
         },
         "timeConfig": {
             "show": true,

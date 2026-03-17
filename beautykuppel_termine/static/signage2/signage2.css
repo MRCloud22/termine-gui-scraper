@@ -210,7 +210,7 @@ body {
     font-size: 24px;
     color: #444;
     font-weight: 500;
-    margin-bottom: 2px;
+    margin-bottom: var(--time-treatment-gap, 2px);
 }
 
 .treatment {
