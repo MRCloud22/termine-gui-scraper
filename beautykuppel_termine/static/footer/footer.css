@@ -23,6 +23,7 @@
   --price-font-size: 52px;
   --original-price-font-size: 42px;
   --empty-font-size: 40px;
+  --price-gap: 8px;
   --group-width: 1000px;
   --marquee-duration: 30s;
 }
@@ -147,12 +148,14 @@ body {
 
 .tickerTreatment {
   font-size: var(--treatment-font-size);
-  line-height: 1.07;
+  line-height: 1.1;
   font-weight: 700;
   color: var(--text-color);
-  white-space: nowrap;
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: clip;
+  word-break: break-word;
+  max-height: calc(2.2em);
 }
 
 .tickerPriceWrap {
@@ -161,7 +164,7 @@ body {
   align-items: flex-end;
   justify-content: center;
   min-width: 130px;
-  margin-left: 8px;
+  margin-left: var(--price-gap);
 }
 
 .tickerPrice {

@@ -23,6 +23,7 @@ const DEFAULTS = {
   priceFontSize: 52,
   originalPriceFontSize: 42,
   emptyFontSize: 40,
+  priceGap: 8,
   scrollSpeedPxPerSec: 90,
   scrollDirection: "ltr",
   dataRefreshSeconds: 60,
@@ -196,6 +197,7 @@ async function main() {
     document.documentElement.style.setProperty("--price-font-size", `${Math.max(10, Number(cfg.priceFontSize) || DEFAULTS.priceFontSize)}px`);
     document.documentElement.style.setProperty("--original-price-font-size", `${Math.max(10, Number(cfg.originalPriceFontSize) || DEFAULTS.originalPriceFontSize)}px`);
     document.documentElement.style.setProperty("--empty-font-size", `${Math.max(10, Number(cfg.emptyFontSize) || DEFAULTS.emptyFontSize)}px`);
+    document.documentElement.style.setProperty("--price-gap", `${Math.max(0, Number(cfg.priceGap) || DEFAULTS.priceGap)}px`);
 
     tickerLabel.textContent = fixText(String(cfg.title || DEFAULTS.title));
     arrow.style.display = cfg.showArrow === false ? "none" : "block";
