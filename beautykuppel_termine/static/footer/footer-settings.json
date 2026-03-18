@@ -34,6 +34,8 @@
     "titleOffsetX": 0,
     "imageSize": 90,
     "imageOffsetX": 0,
-    "globalScale": 1
+    "globalScale": 1,
+    "titleFontSize": 36,
+    "titleBottomGap": 0
   }
 }

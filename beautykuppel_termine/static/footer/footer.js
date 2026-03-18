@@ -18,7 +18,9 @@ const DEFAULTS = {
   footerPaddingX: 24,
   footerPaddingY: 10,
   titleOffsetX: 0,
+  titleBottomGap: 0,
   globalScale: 1,
+  titleFontSize: 36,
   labelFontSize: 36,
   arrowFontSize: 34,
   timeFontSize: 38,
@@ -197,7 +199,8 @@ async function main() {
     const layoutScale = (requestedHeight / DEFAULTS.height) * globalScale;
     const footerPaddingX = Math.max(0, Math.round((Number(cfg.footerPaddingX) || DEFAULTS.footerPaddingX) * layoutScale));
     const footerPaddingY = Math.max(0, Math.round((Number(cfg.footerPaddingY) || DEFAULTS.footerPaddingY) * layoutScale));
-    const labelFontSize = Math.max(10, Math.round((Number(cfg.labelFontSize) || DEFAULTS.labelFontSize) * layoutScale));
+    const titleFontSizeBase = cfg.titleFontSize ?? cfg.labelFontSize ?? DEFAULTS.titleFontSize;
+    const labelFontSize = Math.max(10, Math.round(Number(titleFontSizeBase) * layoutScale));
     const arrowFontSize = Math.max(10, Math.round((Number(cfg.arrowFontSize) || DEFAULTS.arrowFontSize) * layoutScale));
     const timeFontSize = Math.max(10, Math.round((Number(cfg.timeFontSize) || DEFAULTS.timeFontSize) * layoutScale));
     const treatmentFontSize = Math.max(10, Math.round((Number(cfg.treatmentFontSize) || DEFAULTS.treatmentFontSize) * layoutScale));
@@ -211,6 +214,7 @@ async function main() {
     const effectiveImageTextGap = Math.max(0, Math.round((Number(cfg.imageTextGap) || DEFAULTS.imageTextGap) * layoutScale));
     const rawImageOffsetX = Number(cfg.imageOffsetX) || DEFAULTS.imageOffsetX;
     const effectiveImageOffsetX = Math.max(-(effectiveCardPaddingX - 2), Math.min(effectiveImageTextGap, Math.round(rawImageOffsetX * layoutScale)));
+    const titleBottomGap = Math.max(0, Math.round((Number(cfg.titleBottomGap) || DEFAULTS.titleBottomGap) * layoutScale));
     const topRowHeight = Math.max(
       Math.round(28 * layoutScale),
       Math.round(labelFontSize * 1.08),
@@ -234,6 +238,7 @@ async function main() {
     document.documentElement.style.setProperty("--footer-padding-x", `${footerPaddingX}px`);
     document.documentElement.style.setProperty("--footer-padding-y", `${footerPaddingY}px`);
     document.documentElement.style.setProperty("--title-offset-x", `${Math.max(0, Math.round((Number(cfg.titleOffsetX) || DEFAULTS.titleOffsetX) * layoutScale))}px`);
+    document.documentElement.style.setProperty("--title-bottom-gap", `${titleBottomGap}px`);
     document.documentElement.style.setProperty("--top-row-height", `${topRowHeight}px`);
     document.documentElement.style.setProperty("--label-font-size", `${labelFontSize}px`);
     document.documentElement.style.setProperty("--arrow-font-size", `${arrowFontSize}px`);

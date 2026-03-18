@@ -18,6 +18,7 @@
   --footer-padding-x: 24px;
   --footer-padding-y: 10px;
   --title-offset-x: 0px;
+  --title-bottom-gap: 0px;
   --label-font-size: 36px;
   --arrow-font-size: 34px;
   --time-font-size: 38px;
@@ -64,6 +65,7 @@ body {
   justify-content: space-between;
   gap: 12px;
   min-height: var(--top-row-height);
+  margin-bottom: var(--title-bottom-gap);
 }
 
 .tickerLabel {
