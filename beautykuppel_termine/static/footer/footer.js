@@ -50,6 +50,10 @@ function fixText(value) {
     .replaceAll("\u00C2", "");
 }
 
+function fixFooterTreatmentText(value) {
+  return fixText(String(value || "")).replace(/(\d+)\s+Minuten\b/g, "$1\u00A0Minuten");
+}
+
 function formatMoney(raw) {
   const value = String(raw || "").trim();
   if (!value) return "";
@@ -127,7 +131,7 @@ function buildCard(apt, fallbackImage, cfg) {
 
   const treatment = document.createElement("div");
   treatment.className = "tickerTreatment";
-  treatment.textContent = fixText(String(apt.treatment || ""));
+  treatment.textContent = fixFooterTreatmentText(apt.treatment);
 
   body.append(time, treatment);
 
