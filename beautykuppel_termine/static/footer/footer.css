@@ -24,6 +24,7 @@
   --original-price-font-size: 42px;
   --empty-font-size: 40px;
   --price-gap: 8px;
+  --image-text-gap: 14px;
   --group-width: 1000px;
   --marquee-duration: 30s;
 }
@@ -119,7 +120,7 @@ body {
   border: 1px solid var(--card-border);
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 0;
 }
 
 .tickerImage {
@@ -129,11 +130,12 @@ body {
   border: 2px solid rgba(255, 255, 255, 0.95);
   object-fit: cover;
   flex: 0 0 auto;
+  margin-right: var(--image-text-gap);
 }
 
 .tickerBody {
   min-width: 0;
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -155,7 +157,7 @@ body {
   overflow: hidden;
   text-overflow: clip;
   word-break: break-word;
-  max-height: calc(2.2em);
+  max-height: 2.2em;
 }
 
 .tickerPriceWrap {
@@ -163,7 +165,8 @@ body {
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  min-width: 130px;
+  min-width: 0;
+  flex: 0 0 auto;
   margin-left: var(--price-gap);
 }
 

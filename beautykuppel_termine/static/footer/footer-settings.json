@@ -25,6 +25,7 @@
     "originalPriceFontSize": 42,
     "emptyFontSize": 40,
     "priceGap": 8,
+    "imageTextGap": 14,
     "scrollSpeedPxPerSec": 90,
     "scrollDirection": "ltr",
     "dataRefreshSeconds": 60,

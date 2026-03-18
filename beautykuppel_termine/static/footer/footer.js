@@ -24,6 +24,7 @@ const DEFAULTS = {
   originalPriceFontSize: 42,
   emptyFontSize: 40,
   priceGap: 8,
+  imageTextGap: 14,
   scrollSpeedPxPerSec: 90,
   scrollDirection: "ltr",
   dataRefreshSeconds: 60,
@@ -36,23 +37,23 @@ function $(id) {
 
 function fixText(value) {
   if (typeof value !== "string") return value;
-  if (!value.includes("Ã") && !value.includes("Â")) return value;
+  if (!value.includes("\u00C3") && !value.includes("\u00C2")) return value;
   return value
-    .replaceAll("Ã¼", "\u00fc")
-    .replaceAll("Ãœ", "\u00dc")
-    .replaceAll("Ã¤", "\u00e4")
-    .replaceAll("Ã„", "\u00c4")
-    .replaceAll("Ã¶", "\u00f6")
-    .replaceAll("Ã–", "\u00d6")
-    .replaceAll("ÃŸ", "\u00df")
-    .replaceAll("Â", "");
+    .replaceAll("\u00C3\u00BC", "\u00FC")
+    .replaceAll("\u00C3\u009C", "\u00DC")
+    .replaceAll("\u00C3\u00A4", "\u00E4")
+    .replaceAll("\u00C3\u0084", "\u00C4")
+    .replaceAll("\u00C3\u00B6", "\u00F6")
+    .replaceAll("\u00C3\u0096", "\u00D6")
+    .replaceAll("\u00C3\u009F", "\u00DF")
+    .replaceAll("\u00C2", "");
 }
 
 function formatMoney(raw) {
   const value = String(raw || "").trim();
   if (!value) return "";
-  const digits = value.replace(/\u00a0/g, " ").replace(/[^0-9,.-]/g, "").trim();
-  return digits ? `\u20ac ${digits}` : value;
+  const digits = value.replace(/\u00A0/g, " ").replace(/[^0-9,.-]/g, "").trim();
+  return digits ? `\u20AC ${digits}` : value;
 }
 
 function getScrollDirection(cfg) {
@@ -104,7 +105,7 @@ async function fetchJson(url) {
 function buildCard(apt, fallbackImage, cfg) {
   const card = document.createElement("article");
   card.className = "tickerCard";
-  card.style.minWidth = `${Math.max(260, Number(cfg.cardMinWidth) || 420)}px`;
+  card.style.minWidth = `${Math.max(260, Number(cfg.cardMinWidth) || DEFAULTS.cardMinWidth)}px`;
 
   const img = document.createElement("img");
   img.className = "tickerImage";
@@ -148,7 +149,7 @@ function buildCard(apt, fallbackImage, cfg) {
 function buildEmptyCard(text, cfg) {
   const card = document.createElement("article");
   card.className = "tickerCard empty";
-  card.style.minWidth = `${Math.max(360, Number(cfg.cardMinWidth) || 420)}px`;
+  card.style.minWidth = `${Math.max(360, Number(cfg.cardMinWidth) || DEFAULTS.cardMinWidth)}px`;
 
   const msg = document.createElement("div");
   msg.className = "tickerTreatment";
@@ -198,6 +199,7 @@ async function main() {
     document.documentElement.style.setProperty("--original-price-font-size", `${Math.max(10, Number(cfg.originalPriceFontSize) || DEFAULTS.originalPriceFontSize)}px`);
     document.documentElement.style.setProperty("--empty-font-size", `${Math.max(10, Number(cfg.emptyFontSize) || DEFAULTS.emptyFontSize)}px`);
     document.documentElement.style.setProperty("--price-gap", `${Math.max(0, Number(cfg.priceGap) || DEFAULTS.priceGap)}px`);
+    document.documentElement.style.setProperty("--image-text-gap", `${Math.max(0, Number(cfg.imageTextGap) || DEFAULTS.imageTextGap)}px`);
 
     tickerLabel.textContent = fixText(String(cfg.title || DEFAULTS.title));
     arrow.style.display = cfg.showArrow === false ? "none" : "block";
