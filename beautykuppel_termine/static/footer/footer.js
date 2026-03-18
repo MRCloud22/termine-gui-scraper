@@ -216,7 +216,7 @@ async function main() {
 
   async function loadSettings(initial = false) {
     try {
-      const raw = await fetchJson("./footer-settings.json");
+      const raw = await fetchJson(`../footer-settings.json?ts=${Date.now()}`);
       const next = { ...DEFAULTS, ...((raw && raw.footer) || raw || {}) };
       next.title = fixText(next.title);
       next.emptyText = fixText(next.emptyText);

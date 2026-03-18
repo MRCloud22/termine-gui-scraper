@@ -255,6 +255,13 @@ function writeFtpManifest(manifest) {
   writeJson("ftp-manifest.json", manifest || {});
 }
 
+function setNoCacheHeaders(res) {
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+  res.set("Surrogate-Control", "no-store");
+}
+
 async function publishStaticAndMaybeFtp(cfg) {
   if (publishInProgress) return;
   publishInProgress = true;
@@ -597,15 +604,19 @@ function startTimerFromConfig() {
 
 // Serve dynamic settings/media first so signage changes in /config are visible immediately.
 app.get("/settings.json", (req, res) => {
+  setNoCacheHeaders(res);
   res.type("application/json").sendFile(resolvePreferredSettingsPath());
 });
 app.get("/signage2/settings.json", (req, res) => {
+  setNoCacheHeaders(res);
   res.type("application/json").sendFile(resolvePreferredSettingsPath());
 });
 app.get("/footer/footer-settings.json", (req, res) => {
+  setNoCacheHeaders(res);
   res.type("application/json").sendFile(resolvePreferredFooterSettingsPath());
 });
 app.get("/footer-settings.json", (req, res) => {
+  setNoCacheHeaders(res);
   res.type("application/json").sendFile(resolvePreferredFooterSettingsPath());
 });
 app.use("/media", express.static(resolvePreferredMediaDir()));
