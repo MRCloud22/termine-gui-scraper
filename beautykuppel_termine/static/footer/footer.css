@@ -173,7 +173,9 @@ body {
   white-space: normal;
   overflow: hidden;
   text-overflow: clip;
-  word-break: break-word;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
   max-height: 2.2em;
 }
 

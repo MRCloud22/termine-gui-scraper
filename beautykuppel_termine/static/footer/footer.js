@@ -180,21 +180,57 @@ function settingsSignature(settings) {
   return JSON.stringify(settings || {});
 }
 
+function measureTextWidth(text, sourceEl) {
+  if (!text || !sourceEl) return 0;
+  const style = getComputedStyle(sourceEl);
+  const canvas = measureTextWidth.canvas || (measureTextWidth.canvas = document.createElement("canvas"));
+  const ctx = canvas.getContext("2d");
+  ctx.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  return ctx.measureText(String(text)).width;
+}
+
+function getCardContentMinWidth(card) {
+  const cardStyle = getComputedStyle(card);
+  const image = card.querySelector(".tickerImage");
+  const time = card.querySelector(".tickerTime");
+  const treatment = card.querySelector(".tickerTreatment");
+  const priceWrap = card.querySelector(".tickerPriceWrap");
+
+  const paddingLeft = parseFloat(cardStyle.paddingLeft) || 0;
+  const paddingRight = parseFloat(cardStyle.paddingRight) || 0;
+  const imageStyle = image ? getComputedStyle(image) : null;
+  const imageBlock = image
+    ? (image.getBoundingClientRect().width || 0) + (parseFloat(imageStyle.marginLeft) || 0) + (parseFloat(imageStyle.marginRight) || 0)
+    : 0;
+  const priceBlock = priceWrap ? (priceWrap.getBoundingClientRect().width || 0) + (parseFloat(getComputedStyle(priceWrap).marginLeft) || 0) : 0;
+  const timeWidth = time ? measureTextWidth(time.textContent, time) : 0;
+  const words = String(treatment?.textContent || "").trim().split(/\s+/).filter(Boolean);
+  const longestWordWidth = treatment && words.length ? Math.max(...words.map((word) => measureTextWidth(word, treatment))) : 0;
+  const bodyMinWidth = Math.max(timeWidth, longestWordWidth, 28);
+
+  return Math.ceil(paddingLeft + paddingRight + imageBlock + priceBlock + bodyMinWidth + 12);
+}
+
 function canShrinkCard(card) {
   const treatment = card.querySelector(".tickerTreatment");
   const body = card.querySelector(".tickerBody");
+  const time = card.querySelector(".tickerTime");
   if (!treatment || !body) return true;
 
-  const treatmentOverflow = treatment.scrollHeight - treatment.clientHeight > 1;
+  const treatmentHeightOverflow = treatment.scrollHeight - treatment.clientHeight > 1;
+  const treatmentWidthOverflow = treatment.scrollWidth - treatment.clientWidth > 1;
+  const timeWidthOverflow = time ? time.scrollWidth - time.clientWidth > 1 : false;
   const bodyOverflow = body.scrollWidth - body.clientWidth > 1;
   const cardOverflow = card.scrollWidth - card.clientWidth > 1;
-  return !treatmentOverflow && !bodyOverflow && !cardOverflow;
+  return !treatmentHeightOverflow && !treatmentWidthOverflow && !timeWidthOverflow && !bodyOverflow && !cardOverflow;
 }
 
 function tightenCardWidths(group) {
   const cards = Array.from(group.querySelectorAll(".tickerCard:not(.empty)"));
   for (const card of cards) {
-    const minWidth = Math.max(0, Math.round(parseFloat(card.style.minWidth) || card.getBoundingClientRect().width || 0));
+    const configuredMinWidth = Math.max(0, Math.round(parseFloat(card.style.minWidth) || card.getBoundingClientRect().width || 0));
+    const contentMinWidth = getCardContentMinWidth(card);
+    const minWidth = Math.max(configuredMinWidth, contentMinWidth);
     const maxWidth = Math.max(minWidth, Math.round(parseFloat(card.style.maxWidth) || card.getBoundingClientRect().width || minWidth));
 
     card.style.width = `${maxWidth}px`;
