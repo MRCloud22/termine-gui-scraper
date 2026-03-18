@@ -161,9 +161,11 @@ export function buildStaticOut({
   const defaultFooterSettingsPath = path.join(staticSrcDir, "footer", "footer-settings.json");
   const userSettingsPath = path.join(dataDir, "settings.json");
   const userFooterSettingsPath = path.join(dataDir, "footer-settings.json");
+  const userFooterSettingsNestedPath = path.join(dataDir, "footer", "footer-settings.json");
   const configBaseDir = configDir ? path.join(configDir, "beautykuppel_termine") : null;
   const configSettingsPath = configBaseDir ? path.join(configBaseDir, "settings.json") : null;
   const configFooterSettingsPath = configBaseDir ? path.join(configBaseDir, "footer-settings.json") : null;
+  const configFooterSettingsNestedPath = configBaseDir ? path.join(configBaseDir, "footer", "footer-settings.json") : null;
   const configMediaDir = configBaseDir ? path.join(configBaseDir, "media") : null;
   const settingsPath = path.join(outDir, "settings.json");
   const footerSettingsPath = path.join(outDir, "footer", "footer-settings.json");
@@ -172,6 +174,7 @@ export function buildStaticOut({
     ensureDir(configBaseDir);
     if (configSettingsPath) copyFileIfMissing(defaultSettingsPath, configSettingsPath);
     if (configFooterSettingsPath) copyFileIfMissing(defaultFooterSettingsPath, configFooterSettingsPath);
+    if (configFooterSettingsNestedPath) copyFileIfMissing(defaultFooterSettingsPath, configFooterSettingsNestedPath);
     if (configMediaDir) {
       ensureDir(configMediaDir);
       copyDirFiles(path.join(staticSrcDir, "media"), configMediaDir, { overwrite: false });
@@ -184,7 +187,9 @@ export function buildStaticOut({
     defaultSettingsPath;
   const preferredFooterSettingsPath =
     (configFooterSettingsPath && fs.existsSync(configFooterSettingsPath) && configFooterSettingsPath) ||
+    (configFooterSettingsNestedPath && fs.existsSync(configFooterSettingsNestedPath) && configFooterSettingsNestedPath) ||
     (fs.existsSync(userFooterSettingsPath) && userFooterSettingsPath) ||
+    (fs.existsSync(userFooterSettingsNestedPath) && userFooterSettingsNestedPath) ||
     defaultFooterSettingsPath;
 
   if (preferredSettingsPath) fs.copyFileSync(preferredSettingsPath, settingsPath);

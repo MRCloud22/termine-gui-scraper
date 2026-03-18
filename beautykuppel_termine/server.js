@@ -74,9 +74,11 @@ function resolvePreferredSettingsPath() {
 function resolvePreferredFooterSettingsPath() {
   const configBaseDir = resolveConfigBaseDir();
   const configFooterSettingsPath = configBaseDir ? path.join(configBaseDir, "footer-settings.json") : null;
+  const configFooterSettingsNestedPath = configBaseDir ? path.join(configBaseDir, "footer", "footer-settings.json") : null;
   const outFooterSettingsPath = path.join(STATIC_OUT_DIR, "footer", "footer-settings.json");
   const defaultFooterSettingsPath = path.join(STATIC_SRC_DIR, "footer", "footer-settings.json");
   if (configFooterSettingsPath && fs.existsSync(configFooterSettingsPath)) return configFooterSettingsPath;
+  if (configFooterSettingsNestedPath && fs.existsSync(configFooterSettingsNestedPath)) return configFooterSettingsNestedPath;
   if (fs.existsSync(outFooterSettingsPath)) return outFooterSettingsPath;
   return defaultFooterSettingsPath;
 }
