@@ -16,9 +16,16 @@ const DEFAULTS = {
   cardMinWidth: 420,
   footerPaddingX: 24,
   footerPaddingY: 10,
+  labelFontSize: 36,
+  arrowFontSize: 34,
+  timeFontSize: 38,
+  treatmentFontSize: 44,
+  priceFontSize: 52,
+  originalPriceFontSize: 42,
+  emptyFontSize: 40,
   scrollSpeedPxPerSec: 90,
   dataRefreshSeconds: 60,
-  emptyText: "Aktuell sind keine weiteren Termine vorhanden."
+  emptyText: "Aktuell sind keine weiteren Termine vorhanden.",
 };
 
 function $(id) {
@@ -161,7 +168,7 @@ async function main() {
   let resizeTimer = null;
 
   function applyTheme() {
-    document.documentElement.style.setProperty("--footer-height", `${Math.max(140, Number(cfg.height) || 200)}px`);
+    document.documentElement.style.setProperty("--footer-height", `${Math.max(140, Number(cfg.height) || DEFAULTS.height)}px`);
     document.documentElement.style.setProperty("--footer-bg", cfg.backgroundColor || DEFAULTS.backgroundColor);
     document.documentElement.style.setProperty("--footer-border", cfg.borderColor || DEFAULTS.borderColor);
     document.documentElement.style.setProperty("--label-color", cfg.labelColor || DEFAULTS.labelColor);
@@ -175,10 +182,17 @@ async function main() {
     document.documentElement.style.setProperty("--card-radius", `${Math.max(12, Number(cfg.cardRadius) || DEFAULTS.cardRadius)}px`);
     document.documentElement.style.setProperty("--footer-padding-x", `${Math.max(0, Number(cfg.footerPaddingX) || DEFAULTS.footerPaddingX)}px`);
     document.documentElement.style.setProperty("--footer-padding-y", `${Math.max(0, Number(cfg.footerPaddingY) || DEFAULTS.footerPaddingY)}px`);
+    document.documentElement.style.setProperty("--label-font-size", `${Math.max(10, Number(cfg.labelFontSize) || DEFAULTS.labelFontSize)}px`);
+    document.documentElement.style.setProperty("--arrow-font-size", `${Math.max(10, Number(cfg.arrowFontSize) || DEFAULTS.arrowFontSize)}px`);
+    document.documentElement.style.setProperty("--time-font-size", `${Math.max(10, Number(cfg.timeFontSize) || DEFAULTS.timeFontSize)}px`);
+    document.documentElement.style.setProperty("--treatment-font-size", `${Math.max(10, Number(cfg.treatmentFontSize) || DEFAULTS.treatmentFontSize)}px`);
+    document.documentElement.style.setProperty("--price-font-size", `${Math.max(10, Number(cfg.priceFontSize) || DEFAULTS.priceFontSize)}px`);
+    document.documentElement.style.setProperty("--original-price-font-size", `${Math.max(10, Number(cfg.originalPriceFontSize) || DEFAULTS.originalPriceFontSize)}px`);
+    document.documentElement.style.setProperty("--empty-font-size", `${Math.max(10, Number(cfg.emptyFontSize) || DEFAULTS.emptyFontSize)}px`);
 
     tickerLabel.textContent = fixText(String(cfg.title || DEFAULTS.title));
     arrow.style.display = cfg.showArrow === false ? "none" : "block";
-    footerRoot.style.height = `${Math.max(140, Number(cfg.height) || 200)}px`;
+    footerRoot.style.height = `${Math.max(140, Number(cfg.height) || DEFAULTS.height)}px`;
   }
 
   function restartAppointmentsTimer() {

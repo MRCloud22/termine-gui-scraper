@@ -17,6 +17,13 @@
     "cardMinWidth": 420,
     "footerPaddingX": 24,
     "footerPaddingY": 10,
+    "labelFontSize": 36,
+    "arrowFontSize": 34,
+    "timeFontSize": 38,
+    "treatmentFontSize": 44,
+    "priceFontSize": 52,
+    "originalPriceFontSize": 42,
+    "emptyFontSize": 40,
     "scrollSpeedPxPerSec": 90,
     "dataRefreshSeconds": 60,
     "emptyText": "Aktuell sind keine weiteren Termine vorhanden."

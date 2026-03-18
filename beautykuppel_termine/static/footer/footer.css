@@ -16,6 +16,13 @@
   --card-padding-x: 18px;
   --footer-padding-x: 24px;
   --footer-padding-y: 10px;
+  --label-font-size: 36px;
+  --arrow-font-size: 34px;
+  --time-font-size: 38px;
+  --treatment-font-size: 44px;
+  --price-font-size: 52px;
+  --original-price-font-size: 42px;
+  --empty-font-size: 40px;
   --group-width: 1000px;
   --marquee-duration: 30s;
 }
@@ -52,7 +59,7 @@ body {
 
 .tickerLabel {
   color: var(--label-color);
-  font-size: 36px;
+  font-size: var(--label-font-size);
   letter-spacing: 0.05em;
   font-weight: 500;
   text-transform: uppercase;
@@ -61,7 +68,7 @@ body {
 
 .tickerArrow {
   color: var(--label-color);
-  font-size: 34px;
+  font-size: var(--arrow-font-size);
   line-height: 1;
   user-select: none;
 }
@@ -124,14 +131,14 @@ body {
 }
 
 .tickerTime {
-  font-size: 38px;
+  font-size: var(--time-font-size);
   line-height: 1.1;
   font-weight: 500;
   color: #4a4a4a;
 }
 
 .tickerTreatment {
-  font-size: 44px;
+  font-size: var(--treatment-font-size);
   line-height: 1.07;
   font-weight: 700;
   color: var(--text-color);
@@ -150,7 +157,7 @@ body {
 }
 
 .tickerPrice {
-  font-size: 52px;
+  font-size: var(--price-font-size);
   line-height: 1;
   font-weight: 700;
   color: var(--price-color);
@@ -159,7 +166,7 @@ body {
 
 .tickerOriginalPrice {
   margin-top: 2px;
-  font-size: 42px;
+  font-size: var(--original-price-font-size);
   line-height: 1;
   font-weight: 700;
   color: var(--old-price-color);
@@ -174,7 +181,7 @@ body {
 }
 
 .tickerCard.empty .tickerTreatment {
-  font-size: 40px;
+  font-size: var(--empty-font-size);
   white-space: normal;
   text-overflow: clip;
 }
@@ -190,10 +197,5 @@ body {
 }
 
 @media (max-width: 1400px) {
-  .tickerLabel { font-size: 28px; }
   .tickerCard { min-width: 360px; max-width: 520px; }
-  .tickerTime { font-size: 30px; }
-  .tickerTreatment { font-size: 34px; }
-  .tickerPrice { font-size: 40px; }
-  .tickerOriginalPrice { font-size: 32px; }
 }
