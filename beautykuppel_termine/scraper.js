@@ -244,13 +244,25 @@ export function parseAvailabilitiesHtml(html) {
       part.match(/<div class="name[^"]*">[\s\S]*?<div>\s*([\s\S]*?)\s*<\/div>/)?.[1] || "";
     const name = normalizeWhitespace(decodeBasicEntities(stripTags(nameRaw)));
 
-    const priceNumber = part.match(/(?:\u20AC|&euro;)\s*(?:&nbsp;|\u00a0)?\s*([0-9.,]+)/)?.[1] || "";
-    const price = priceNumber ? `${EURO} ${priceNumber.replace(".", ",")}` : "";
+    const normalizePriceNumber = (raw) => {
+      const value = String(raw || "").trim();
+      if (!value) return "";
+      return value.includes(",") ? value : value.replace(".", ",");
+    };
+
+    const hotDealPriceNumber =
+      part.match(/class="[^"]*prices__new[^"]*"[^>]*>\s*(?:\u20AC|&euro;)\s*(?:&nbsp;|\u00a0)?\s*([0-9.,]+)/)?.[1] || "";
+    const fallbackPriceNumber =
+      part.match(/(?:\u20AC|&euro;)\s*(?:&nbsp;|\u00a0)?\s*([0-9.,]+)/)?.[1] || "";
+    const priceNumber = hotDealPriceNumber || fallbackPriceNumber;
+    const price = priceNumber ? `${EURO} ${normalizePriceNumber(priceNumber)}` : "";
 
     const originalPriceNumber =
-      part.match(/class="original-price"[\s\S]*?(?:\u20AC|&euro;)\s*(?:&nbsp;|\u00a0)?\s*([0-9.,]+)/)?.[1] || null;
+      part.match(/class="[^"]*(?:prices__old|original-price)[^"]*"[^>]*>\s*(?:\u20AC|&euro;)\s*(?:&nbsp;|\u00a0)?\s*([0-9.,]+)/)?.[1] ||
+      part.match(/<del[^>]*>\s*(?:\u20AC|&euro;)\s*(?:&nbsp;|\u00a0)?\s*([0-9.,]+)/)?.[1] ||
+      null;
     const originalPrice = originalPriceNumber
-      ? `${EURO} ${originalPriceNumber.replace(".", ",")}`
+      ? `${EURO} ${normalizePriceNumber(originalPriceNumber)}`
       : null;
 
     entries.push({
