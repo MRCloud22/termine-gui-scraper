@@ -18,6 +18,7 @@ const DEFAULTS = {
   footerPaddingX: 24,
   footerPaddingY: 10,
   titleOffsetX: 0,
+  globalScale: 1,
   labelFontSize: 36,
   arrowFontSize: 34,
   timeFontSize: 38,
@@ -192,25 +193,29 @@ async function main() {
 
   function applyTheme() {
     const requestedHeight = Math.max(120, Number(cfg.height) || DEFAULTS.height);
-    const footerPaddingX = Math.max(0, Number(cfg.footerPaddingX) || DEFAULTS.footerPaddingX);
-    const footerPaddingY = Math.max(0, Number(cfg.footerPaddingY) || DEFAULTS.footerPaddingY);
-    const labelFontSize = Math.max(10, Number(cfg.labelFontSize) || DEFAULTS.labelFontSize);
-    const arrowFontSize = Math.max(10, Number(cfg.arrowFontSize) || DEFAULTS.arrowFontSize);
-    const requestedCardHeight = Math.max(56, Number(cfg.cardHeight) || DEFAULTS.cardHeight);
-    const requestedImageSize = Math.max(24, Number(cfg.imageSize) || DEFAULTS.imageSize);
-    const topRowRequested = Math.max(24, labelFontSize * 1.08, arrowFontSize * 1.08);
-    const innerHeight = Math.max(40, requestedHeight - (footerPaddingY * 2) - 2);
-    const topRowHeight = Math.min(topRowRequested, Math.max(24, innerHeight * 0.32));
-    const availableCardHeight = Math.max(56, innerHeight - topRowHeight);
-    const cardScale = Math.min(1, availableCardHeight / requestedCardHeight);
-    const headerScale = Math.min(1, topRowHeight / topRowRequested);
-    const effectiveCardHeight = Math.max(56, Math.round(requestedCardHeight * cardScale));
-    const effectiveImageSize = Math.max(24, Math.min(effectiveCardHeight - 12, Math.round(requestedImageSize * cardScale)));
-    const effectiveCardPaddingX = Math.max(10, Math.round(18 * cardScale));
-    const effectiveCardPaddingY = Math.max(4, Math.round(10 * cardScale));
-    const effectiveImageTextGap = Math.max(0, Math.round((Number(cfg.imageTextGap) || DEFAULTS.imageTextGap) * cardScale));
+    const globalScale = Math.max(0.4, Number(cfg.globalScale) || DEFAULTS.globalScale);
+    const layoutScale = (requestedHeight / DEFAULTS.height) * globalScale;
+    const footerPaddingX = Math.max(0, Math.round((Number(cfg.footerPaddingX) || DEFAULTS.footerPaddingX) * layoutScale));
+    const footerPaddingY = Math.max(0, Math.round((Number(cfg.footerPaddingY) || DEFAULTS.footerPaddingY) * layoutScale));
+    const labelFontSize = Math.max(10, Math.round((Number(cfg.labelFontSize) || DEFAULTS.labelFontSize) * layoutScale));
+    const arrowFontSize = Math.max(10, Math.round((Number(cfg.arrowFontSize) || DEFAULTS.arrowFontSize) * layoutScale));
+    const timeFontSize = Math.max(10, Math.round((Number(cfg.timeFontSize) || DEFAULTS.timeFontSize) * layoutScale));
+    const treatmentFontSize = Math.max(10, Math.round((Number(cfg.treatmentFontSize) || DEFAULTS.treatmentFontSize) * layoutScale));
+    const priceFontSize = Math.max(10, Math.round((Number(cfg.priceFontSize) || DEFAULTS.priceFontSize) * layoutScale));
+    const originalPriceFontSize = Math.max(10, Math.round((Number(cfg.originalPriceFontSize) || DEFAULTS.originalPriceFontSize) * layoutScale));
+    const emptyFontSize = Math.max(10, Math.round((Number(cfg.emptyFontSize) || DEFAULTS.emptyFontSize) * layoutScale));
+    const requestedCardHeight = Math.max(56, Math.round((Number(cfg.cardHeight) || DEFAULTS.cardHeight) * layoutScale));
+    const effectiveImageSize = Math.max(24, Math.min(requestedCardHeight - 12, Math.round((Number(cfg.imageSize) || DEFAULTS.imageSize) * layoutScale)));
+    const effectiveCardPaddingX = Math.max(10, Math.round(18 * layoutScale));
+    const effectiveCardPaddingY = Math.max(4, Math.round(10 * layoutScale));
+    const effectiveImageTextGap = Math.max(0, Math.round((Number(cfg.imageTextGap) || DEFAULTS.imageTextGap) * layoutScale));
     const rawImageOffsetX = Number(cfg.imageOffsetX) || DEFAULTS.imageOffsetX;
-    const effectiveImageOffsetX = Math.max(-(effectiveCardPaddingX - 2), Math.min(effectiveImageTextGap, Math.round(rawImageOffsetX * cardScale)));
+    const effectiveImageOffsetX = Math.max(-(effectiveCardPaddingX - 2), Math.min(effectiveImageTextGap, Math.round(rawImageOffsetX * layoutScale)));
+    const topRowHeight = Math.max(
+      Math.round(28 * layoutScale),
+      Math.round(labelFontSize * 1.08),
+      Math.round(arrowFontSize * 1.08),
+    );
 
     document.documentElement.style.setProperty("--footer-height", `${requestedHeight}px`);
     document.documentElement.style.setProperty("--footer-bg", cfg.backgroundColor || DEFAULTS.backgroundColor);
@@ -221,23 +226,23 @@ async function main() {
     document.documentElement.style.setProperty("--card-border", cfg.cardBorderColor || DEFAULTS.cardBorderColor);
     document.documentElement.style.setProperty("--price-color", cfg.priceColor || DEFAULTS.priceColor);
     document.documentElement.style.setProperty("--old-price-color", cfg.oldPriceColor || DEFAULTS.oldPriceColor);
-    document.documentElement.style.setProperty("--item-gap", `${Math.max(8, Number(cfg.itemGap) || DEFAULTS.itemGap)}px`);
-    document.documentElement.style.setProperty("--card-height", `${effectiveCardHeight}px`);
-    document.documentElement.style.setProperty("--card-radius", `${Math.max(12, Math.round((Number(cfg.cardRadius) || DEFAULTS.cardRadius) * cardScale))}px`);
+    document.documentElement.style.setProperty("--item-gap", `${Math.max(8, Math.round((Number(cfg.itemGap) || DEFAULTS.itemGap) * layoutScale))}px`);
+    document.documentElement.style.setProperty("--card-height", `${requestedCardHeight}px`);
+    document.documentElement.style.setProperty("--card-radius", `${Math.max(12, Math.round((Number(cfg.cardRadius) || DEFAULTS.cardRadius) * layoutScale))}px`);
     document.documentElement.style.setProperty("--card-padding-x", `${effectiveCardPaddingX}px`);
     document.documentElement.style.setProperty("--card-padding-y", `${effectiveCardPaddingY}px`);
     document.documentElement.style.setProperty("--footer-padding-x", `${footerPaddingX}px`);
     document.documentElement.style.setProperty("--footer-padding-y", `${footerPaddingY}px`);
-    document.documentElement.style.setProperty("--title-offset-x", `${Math.max(0, Number(cfg.titleOffsetX) || DEFAULTS.titleOffsetX)}px`);
-    document.documentElement.style.setProperty("--top-row-height", `${Math.round(topRowHeight)}px`);
-    document.documentElement.style.setProperty("--label-font-size", `${Math.max(10, Math.round(labelFontSize * headerScale))}px`);
-    document.documentElement.style.setProperty("--arrow-font-size", `${Math.max(10, Math.round(arrowFontSize * headerScale))}px`);
-    document.documentElement.style.setProperty("--time-font-size", `${Math.max(10, Math.round((Number(cfg.timeFontSize) || DEFAULTS.timeFontSize) * cardScale))}px`);
-    document.documentElement.style.setProperty("--treatment-font-size", `${Math.max(10, Math.round((Number(cfg.treatmentFontSize) || DEFAULTS.treatmentFontSize) * cardScale))}px`);
-    document.documentElement.style.setProperty("--price-font-size", `${Math.max(10, Math.round((Number(cfg.priceFontSize) || DEFAULTS.priceFontSize) * cardScale))}px`);
-    document.documentElement.style.setProperty("--original-price-font-size", `${Math.max(10, Math.round((Number(cfg.originalPriceFontSize) || DEFAULTS.originalPriceFontSize) * cardScale))}px`);
-    document.documentElement.style.setProperty("--empty-font-size", `${Math.max(10, Math.round((Number(cfg.emptyFontSize) || DEFAULTS.emptyFontSize) * cardScale))}px`);
-    document.documentElement.style.setProperty("--price-gap", `${Math.max(0, Number(cfg.priceGap) || DEFAULTS.priceGap)}px`);
+    document.documentElement.style.setProperty("--title-offset-x", `${Math.max(0, Math.round((Number(cfg.titleOffsetX) || DEFAULTS.titleOffsetX) * layoutScale))}px`);
+    document.documentElement.style.setProperty("--top-row-height", `${topRowHeight}px`);
+    document.documentElement.style.setProperty("--label-font-size", `${labelFontSize}px`);
+    document.documentElement.style.setProperty("--arrow-font-size", `${arrowFontSize}px`);
+    document.documentElement.style.setProperty("--time-font-size", `${timeFontSize}px`);
+    document.documentElement.style.setProperty("--treatment-font-size", `${treatmentFontSize}px`);
+    document.documentElement.style.setProperty("--price-font-size", `${priceFontSize}px`);
+    document.documentElement.style.setProperty("--original-price-font-size", `${originalPriceFontSize}px`);
+    document.documentElement.style.setProperty("--empty-font-size", `${emptyFontSize}px`);
+    document.documentElement.style.setProperty("--price-gap", `${Math.max(0, Math.round((Number(cfg.priceGap) || DEFAULTS.priceGap) * layoutScale))}px`);
     document.documentElement.style.setProperty("--image-text-gap", `${effectiveImageTextGap}px`);
     document.documentElement.style.setProperty("--image-size", `${effectiveImageSize}px`);
     document.documentElement.style.setProperty("--image-offset-x", `${effectiveImageOffsetX}px`);

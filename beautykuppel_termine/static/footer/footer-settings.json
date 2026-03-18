@@ -33,6 +33,7 @@
     "cardMaxWidth": 600,
     "titleOffsetX": 0,
     "imageSize": 90,
-    "imageOffsetX": 0
+    "imageOffsetX": 0,
+    "globalScale": 1
   }
 }
