@@ -17,6 +17,7 @@ const DEFAULTS = {
   cardMaxWidth: 600,
   footerPaddingX: 24,
   footerPaddingY: 10,
+  titleOffsetX: 0,
   labelFontSize: 36,
   arrowFontSize: 34,
   timeFontSize: 38,
@@ -202,6 +203,7 @@ async function main() {
     document.documentElement.style.setProperty("--card-radius", `${Math.max(12, Number(cfg.cardRadius) || DEFAULTS.cardRadius)}px`);
     document.documentElement.style.setProperty("--footer-padding-x", `${Math.max(0, Number(cfg.footerPaddingX) || DEFAULTS.footerPaddingX)}px`);
     document.documentElement.style.setProperty("--footer-padding-y", `${Math.max(0, Number(cfg.footerPaddingY) || DEFAULTS.footerPaddingY)}px`);
+    document.documentElement.style.setProperty("--title-offset-x", `${Math.max(0, Number(cfg.titleOffsetX) || DEFAULTS.titleOffsetX)}px`);
     document.documentElement.style.setProperty("--label-font-size", `${Math.max(10, Number(cfg.labelFontSize) || DEFAULTS.labelFontSize)}px`);
     document.documentElement.style.setProperty("--arrow-font-size", `${Math.max(10, Number(cfg.arrowFontSize) || DEFAULTS.arrowFontSize)}px`);
     document.documentElement.style.setProperty("--time-font-size", `${Math.max(10, Number(cfg.timeFontSize) || DEFAULTS.timeFontSize)}px`);
@@ -300,7 +302,8 @@ async function main() {
     requestAnimationFrame(() => {
       const width = Math.ceil(group.getBoundingClientRect().width || 0);
       const speed = Math.max(25, Number(cfg.scrollSpeedPxPerSec) || DEFAULTS.scrollSpeedPxPerSec);
-      const safeWidth = Math.max(320, width);
+      const groupGap = Math.max(8, Number(cfg.itemGap) || DEFAULTS.itemGap);
+      const safeWidth = Math.max(320, width + groupGap);
       const durationSec = Math.max(8, safeWidth / speed);
       applyTrackAnimation(direction, durationSec, safeWidth);
     });

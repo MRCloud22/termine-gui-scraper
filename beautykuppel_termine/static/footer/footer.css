@@ -16,6 +16,7 @@
   --card-padding-x: 18px;
   --footer-padding-x: 24px;
   --footer-padding-y: 10px;
+  --title-offset-x: 0px;
   --label-font-size: 36px;
   --arrow-font-size: 34px;
   --time-font-size: 38px;
@@ -61,6 +62,7 @@ body {
 
 .tickerLabel {
   color: var(--label-color);
+  margin-left: var(--title-offset-x);
   font-size: var(--label-font-size);
   letter-spacing: 0.05em;
   font-weight: 500;
@@ -85,6 +87,7 @@ body {
 .tickerTrack {
   display: flex;
   align-items: center;
+  gap: var(--item-gap);
   width: max-content;
   transform: translate3d(calc(-1 * var(--group-width)), 0, 0);
 }

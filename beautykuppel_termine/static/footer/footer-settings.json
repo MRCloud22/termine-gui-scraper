@@ -30,6 +30,7 @@
     "scrollDirection": "ltr",
     "dataRefreshSeconds": 60,
     "emptyText": "Aktuell sind keine weiteren Termine vorhanden.",
-    "cardMaxWidth": 600
+    "cardMaxWidth": 600,
+    "titleOffsetX": 0
   }
 }
