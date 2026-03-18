@@ -31,6 +31,7 @@
     "dataRefreshSeconds": 60,
     "emptyText": "Aktuell sind keine weiteren Termine vorhanden.",
     "cardMaxWidth": 600,
-    "titleOffsetX": 0
+    "titleOffsetX": 0,
+    "imageSize": 90
   }
 }

@@ -27,6 +27,7 @@ const DEFAULTS = {
   emptyFontSize: 40,
   priceGap: 8,
   imageTextGap: 14,
+  imageSize: 90,
   scrollSpeedPxPerSec: 90,
   scrollDirection: "ltr",
   dataRefreshSeconds: 60,
@@ -195,6 +196,7 @@ async function main() {
     const labelFontSize = Math.max(10, Number(cfg.labelFontSize) || DEFAULTS.labelFontSize);
     const arrowFontSize = Math.max(10, Number(cfg.arrowFontSize) || DEFAULTS.arrowFontSize);
     const requestedCardHeight = Math.max(56, Number(cfg.cardHeight) || DEFAULTS.cardHeight);
+    const requestedImageSize = Math.max(24, Number(cfg.imageSize) || DEFAULTS.imageSize);
     const topRowRequested = Math.max(24, labelFontSize * 1.08, arrowFontSize * 1.08);
     const innerHeight = Math.max(40, requestedHeight - (footerPaddingY * 2) - 2);
     const topRowHeight = Math.min(topRowRequested, Math.max(24, innerHeight * 0.32));
@@ -202,7 +204,7 @@ async function main() {
     const cardScale = Math.min(1, availableCardHeight / requestedCardHeight);
     const headerScale = Math.min(1, topRowHeight / topRowRequested);
     const effectiveCardHeight = Math.max(56, Math.round(requestedCardHeight * cardScale));
-    const effectiveImageSize = Math.max(38, Math.min(effectiveCardHeight - 12, Math.round(90 * cardScale)));
+    const effectiveImageSize = Math.max(24, Math.min(effectiveCardHeight - 12, Math.round(requestedImageSize * cardScale)));
     const effectiveCardPaddingX = Math.max(10, Math.round(18 * cardScale));
     const effectiveCardPaddingY = Math.max(4, Math.round(10 * cardScale));
 
