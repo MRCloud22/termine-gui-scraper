@@ -89,7 +89,15 @@ body {
 
 .tickerTrack.animate {
   will-change: transform;
-  animation: footerMarquee var(--marquee-duration) linear infinite;
+}
+
+.tickerTrack.animate.dir-ltr {
+  animation: footerMarqueeLtr var(--marquee-duration) linear infinite;
+}
+
+.tickerTrack.animate.dir-rtl {
+  transform: translate3d(0, 0, 0);
+  animation: footerMarqueeRtl var(--marquee-duration) linear infinite;
 }
 
 .tickerGroup {
@@ -186,13 +194,23 @@ body {
   text-overflow: clip;
 }
 
-@keyframes footerMarquee {
+@keyframes footerMarqueeLtr {
   from {
     transform: translate3d(calc(-1 * var(--group-width)), 0, 0);
   }
 
   to {
     transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes footerMarqueeRtl {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(calc(-1 * var(--group-width)), 0, 0);
   }
 }
 

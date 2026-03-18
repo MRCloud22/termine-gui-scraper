@@ -24,6 +24,7 @@ const DEFAULTS = {
   originalPriceFontSize: 42,
   emptyFontSize: 40,
   scrollSpeedPxPerSec: 90,
+  scrollDirection: "ltr",
   dataRefreshSeconds: 60,
   emptyText: "Aktuell sind keine weiteren Termine vorhanden.",
 };
@@ -51,6 +52,12 @@ function formatMoney(raw) {
   if (!value) return "";
   const digits = value.replace(/\u00a0/g, " ").replace(/[^0-9,.-]/g, "").trim();
   return digits ? `\u20ac ${digits}` : value;
+}
+
+function getScrollDirection(cfg) {
+  const value = String(cfg?.scrollDirection || DEFAULTS.scrollDirection).toLowerCase().trim();
+  if (value === "rtl" || value === "right-to-left" || value === "right_to_left") return "rtl";
+  return "ltr";
 }
 
 function filterPastAppointments(appointments) {
@@ -244,21 +251,27 @@ async function main() {
     }
   }
 
+  function applyTrackAnimation(direction, durationSec, groupWidthPx) {
+    tickerTrack.className = "tickerTrack";
+    tickerTrack.style.setProperty("--group-width", `${groupWidthPx}px`);
+    tickerTrack.style.setProperty("--marquee-duration", `${durationSec.toFixed(2)}s`);
+    tickerTrack.classList.add("animate", direction === "rtl" ? "dir-rtl" : "dir-ltr");
+  }
+
   function render() {
-    tickerTrack.classList.remove("animate");
+    tickerTrack.className = "tickerTrack";
     tickerTrack.innerHTML = "";
 
     const fallbackImage = "../media/facial.png";
     const group = document.createElement("div");
     group.className = "tickerGroup";
+    const direction = getScrollDirection(cfg);
 
     if (!appointments.length) {
       group.appendChild(buildEmptyCard(cfg.emptyText || DEFAULTS.emptyText, cfg));
       const clone = group.cloneNode(true);
       tickerTrack.append(group, clone);
-      tickerTrack.style.setProperty("--group-width", "720px");
-      tickerTrack.style.setProperty("--marquee-duration", "28s");
-      tickerTrack.classList.add("animate");
+      applyTrackAnimation(direction, 28, 720);
       return;
     }
 
@@ -274,9 +287,7 @@ async function main() {
       const speed = Math.max(25, Number(cfg.scrollSpeedPxPerSec) || DEFAULTS.scrollSpeedPxPerSec);
       const safeWidth = Math.max(320, width);
       const durationSec = Math.max(8, safeWidth / speed);
-      tickerTrack.style.setProperty("--group-width", `${safeWidth}px`);
-      tickerTrack.style.setProperty("--marquee-duration", `${durationSec.toFixed(2)}s`);
-      tickerTrack.classList.add("animate");
+      applyTrackAnimation(direction, durationSec, safeWidth);
     });
   }
 
