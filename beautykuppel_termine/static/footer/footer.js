@@ -116,7 +116,7 @@ async function fetchJson(url) {
 function buildCard(apt, fallbackImage, cfg) {
   const card = document.createElement("article");
   card.className = "tickerCard";
-  const minWidth = Math.max(260, Number(cfg.cardMinWidth) || DEFAULTS.cardMinWidth);
+  const minWidth = Math.max(80, Number(cfg.cardMinWidth) || DEFAULTS.cardMinWidth);
   const maxWidth = Math.max(minWidth, Number(cfg.cardMaxWidth) || DEFAULTS.cardMaxWidth);
   card.style.minWidth = `${minWidth}px`;
   card.style.maxWidth = `${maxWidth}px`;
@@ -178,6 +178,43 @@ function buildEmptyCard(text, cfg) {
 
 function settingsSignature(settings) {
   return JSON.stringify(settings || {});
+}
+
+function canShrinkCard(card) {
+  const treatment = card.querySelector(".tickerTreatment");
+  const body = card.querySelector(".tickerBody");
+  if (!treatment || !body) return true;
+
+  const treatmentOverflow = treatment.scrollHeight - treatment.clientHeight > 1;
+  const bodyOverflow = body.scrollWidth - body.clientWidth > 1;
+  const cardOverflow = card.scrollWidth - card.clientWidth > 1;
+  return !treatmentOverflow && !bodyOverflow && !cardOverflow;
+}
+
+function tightenCardWidths(group) {
+  const cards = Array.from(group.querySelectorAll(".tickerCard:not(.empty)"));
+  for (const card of cards) {
+    const minWidth = Math.max(0, Math.round(parseFloat(card.style.minWidth) || card.getBoundingClientRect().width || 0));
+    const maxWidth = Math.max(minWidth, Math.round(parseFloat(card.style.maxWidth) || card.getBoundingClientRect().width || minWidth));
+
+    card.style.width = `${maxWidth}px`;
+    let low = minWidth;
+    let high = maxWidth;
+    let best = maxWidth;
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      card.style.width = `${mid}px`;
+      if (canShrinkCard(card)) {
+        best = mid;
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    }
+
+    card.style.width = `${best}px`;
+  }
 }
 
 async function main() {
@@ -334,10 +371,13 @@ async function main() {
       group.appendChild(buildCard(apt, fallbackImage, cfg));
     }
 
-    const clone = group.cloneNode(true);
-    tickerTrack.append(group, clone);
+    tickerTrack.append(group);
 
     requestAnimationFrame(() => {
+      tightenCardWidths(group);
+      const clone = group.cloneNode(true);
+      tickerTrack.append(clone);
+
       const width = Math.ceil(group.getBoundingClientRect().width || 0);
       const speed = Math.max(25, Number(cfg.scrollSpeedPxPerSec) || DEFAULTS.scrollSpeedPxPerSec);
       const groupGap = Math.max(8, Number(cfg.itemGap) || DEFAULTS.itemGap);

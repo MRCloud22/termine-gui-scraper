@@ -135,6 +135,8 @@ body {
   display: flex;
   align-items: center;
   gap: 0;
+  flex: 0 0 auto;
+  width: fit-content;
 }
 
 .tickerImage {
