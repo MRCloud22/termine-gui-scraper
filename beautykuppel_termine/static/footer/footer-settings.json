@@ -29,6 +29,7 @@
     "scrollSpeedPxPerSec": 90,
     "scrollDirection": "ltr",
     "dataRefreshSeconds": 60,
-    "emptyText": "Aktuell sind keine weiteren Termine vorhanden."
+    "emptyText": "Aktuell sind keine weiteren Termine vorhanden.",
+    "cardMaxWidth": 600
   }
 }

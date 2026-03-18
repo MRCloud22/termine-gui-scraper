@@ -14,6 +14,7 @@ const DEFAULTS = {
   cardHeight: 112,
   cardRadius: 50,
   cardMinWidth: 420,
+  cardMaxWidth: 600,
   footerPaddingX: 24,
   footerPaddingY: 10,
   labelFontSize: 36,
@@ -105,7 +106,10 @@ async function fetchJson(url) {
 function buildCard(apt, fallbackImage, cfg) {
   const card = document.createElement("article");
   card.className = "tickerCard";
-  card.style.minWidth = `${Math.max(260, Number(cfg.cardMinWidth) || DEFAULTS.cardMinWidth)}px`;
+  const minWidth = Math.max(260, Number(cfg.cardMinWidth) || DEFAULTS.cardMinWidth);
+  const maxWidth = Math.max(minWidth, Number(cfg.cardMaxWidth) || DEFAULTS.cardMaxWidth);
+  card.style.minWidth = `${minWidth}px`;
+  card.style.maxWidth = `${maxWidth}px`;
 
   const img = document.createElement("img");
   img.className = "tickerImage";
@@ -149,7 +153,10 @@ function buildCard(apt, fallbackImage, cfg) {
 function buildEmptyCard(text, cfg) {
   const card = document.createElement("article");
   card.className = "tickerCard empty";
-  card.style.minWidth = `${Math.max(360, Number(cfg.cardMinWidth) || DEFAULTS.cardMinWidth)}px`;
+  const minWidth = Math.max(360, Number(cfg.cardMinWidth) || DEFAULTS.cardMinWidth);
+  const maxWidth = Math.max(minWidth, Number(cfg.cardMaxWidth) || DEFAULTS.cardMaxWidth);
+  card.style.minWidth = `${minWidth}px`;
+  card.style.maxWidth = `${maxWidth}px`;
 
   const msg = document.createElement("div");
   msg.className = "tickerTreatment";
