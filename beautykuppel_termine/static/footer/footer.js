@@ -120,12 +120,13 @@ function buildCard(apt, fallbackImage, cfg) {
   const maxWidth = Math.max(minWidth, Number(cfg.cardMaxWidth) || DEFAULTS.cardMaxWidth);
   card.style.minWidth = `${minWidth}px`;
   card.style.maxWidth = `${maxWidth}px`;
+  card.style.width = `${maxWidth}px`;
 
   const img = document.createElement("img");
   img.className = "tickerImage";
   img.alt = "";
-  img.loading = "lazy";
-  img.decoding = "async";
+  img.loading = "eager";
+  img.decoding = "auto";
   img.src = apt.imageUrl || fallbackImage;
 
   const body = document.createElement("div");
@@ -167,6 +168,7 @@ function buildEmptyCard(text, cfg) {
   const maxWidth = Math.max(minWidth, Number(cfg.cardMaxWidth) || DEFAULTS.cardMaxWidth);
   card.style.minWidth = `${minWidth}px`;
   card.style.maxWidth = `${maxWidth}px`;
+  card.style.width = `${maxWidth}px`;
 
   const msg = document.createElement("div");
   msg.className = "tickerTreatment";
@@ -413,6 +415,7 @@ async function main() {
       tightenCardWidths(group);
       const clone = group.cloneNode(true);
       tickerTrack.append(clone);
+      tightenCardWidths(clone);
 
       const width = Math.ceil(group.getBoundingClientRect().width || 0);
       const speed = Math.max(25, Number(cfg.scrollSpeedPxPerSec) || DEFAULTS.scrollSpeedPxPerSec);
@@ -424,6 +427,11 @@ async function main() {
   }
 
   await loadSettings(true);
+  if (document.fonts && document.fonts.ready) {
+    try {
+      await document.fonts.ready;
+    } catch {}
+  }
   await loadAppointments(true);
   restartAppointmentsTimer();
 
@@ -435,10 +443,6 @@ async function main() {
     if (resizeTimer) clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => render(), 120);
   });
-
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => render()).catch(() => {});
-  }
 }
 
 main().catch(() => {});
