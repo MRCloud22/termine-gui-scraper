@@ -189,6 +189,8 @@ body {
   font-weight: 700;
   color: var(--price-color);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
 .tickerOriginalPrice {
@@ -199,6 +201,8 @@ body {
   color: var(--old-price-color);
   text-decoration: line-through;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
 .tickerCard.empty {
