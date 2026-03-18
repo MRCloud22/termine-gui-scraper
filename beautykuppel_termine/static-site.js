@@ -156,17 +156,22 @@ export function buildStaticOut({
   // Copy static page assets
   copyDir(staticSrcDir, outDir);
 
-  // Ensure settings.json exists in out root; prefer /config (HA) then data/ then defaults.
+  // Ensure settings files exist in out root; prefer /config (HA) then data/ then defaults.
   const defaultSettingsPath = path.join(staticSrcDir, "settings.json");
+  const defaultFooterSettingsPath = path.join(staticSrcDir, "footer", "footer-settings.json");
   const userSettingsPath = path.join(dataDir, "settings.json");
+  const userFooterSettingsPath = path.join(dataDir, "footer-settings.json");
   const configBaseDir = configDir ? path.join(configDir, "beautykuppel_termine") : null;
   const configSettingsPath = configBaseDir ? path.join(configBaseDir, "settings.json") : null;
+  const configFooterSettingsPath = configBaseDir ? path.join(configBaseDir, "footer-settings.json") : null;
   const configMediaDir = configBaseDir ? path.join(configBaseDir, "media") : null;
   const settingsPath = path.join(outDir, "settings.json");
+  const footerSettingsPath = path.join(outDir, "footer", "footer-settings.json");
 
   if (configBaseDir) {
     ensureDir(configBaseDir);
     if (configSettingsPath) copyFileIfMissing(defaultSettingsPath, configSettingsPath);
+    if (configFooterSettingsPath) copyFileIfMissing(defaultFooterSettingsPath, configFooterSettingsPath);
     if (configMediaDir) {
       ensureDir(configMediaDir);
       copyDirFiles(path.join(staticSrcDir, "media"), configMediaDir, { overwrite: false });
@@ -177,7 +182,16 @@ export function buildStaticOut({
     (configSettingsPath && fs.existsSync(configSettingsPath) && configSettingsPath) ||
     (fs.existsSync(userSettingsPath) && userSettingsPath) ||
     defaultSettingsPath;
+  const preferredFooterSettingsPath =
+    (configFooterSettingsPath && fs.existsSync(configFooterSettingsPath) && configFooterSettingsPath) ||
+    (fs.existsSync(userFooterSettingsPath) && userFooterSettingsPath) ||
+    defaultFooterSettingsPath;
+
   if (preferredSettingsPath) fs.copyFileSync(preferredSettingsPath, settingsPath);
+  if (preferredFooterSettingsPath) {
+    ensureDir(path.dirname(footerSettingsPath));
+    fs.copyFileSync(preferredFooterSettingsPath, footerSettingsPath);
+  }
 
   // Compatibility: also place settings + media into /signage2/
   const signage2Dir = path.join(outDir, "signage2");
@@ -204,5 +218,5 @@ export function buildStaticOut({
   const rss = buildRssXml(appointmentsJson, settings);
   writeText(path.join(outDir, "rss.xml"), rss);
 
-  return { outDir, appointmentsJson, settings, settingsSource: preferredSettingsPath, configBaseDir };
+  return { outDir, appointmentsJson, settings, settingsSource: preferredSettingsPath, footerSettingsSource: preferredFooterSettingsPath, configBaseDir };
 }

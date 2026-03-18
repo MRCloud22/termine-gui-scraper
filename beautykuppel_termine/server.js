@@ -71,6 +71,16 @@ function resolvePreferredSettingsPath() {
   return defaultSettingsPath;
 }
 
+function resolvePreferredFooterSettingsPath() {
+  const configBaseDir = resolveConfigBaseDir();
+  const configFooterSettingsPath = configBaseDir ? path.join(configBaseDir, "footer-settings.json") : null;
+  const outFooterSettingsPath = path.join(STATIC_OUT_DIR, "footer", "footer-settings.json");
+  const defaultFooterSettingsPath = path.join(STATIC_SRC_DIR, "footer", "footer-settings.json");
+  if (configFooterSettingsPath && fs.existsSync(configFooterSettingsPath)) return configFooterSettingsPath;
+  if (fs.existsSync(outFooterSettingsPath)) return outFooterSettingsPath;
+  return defaultFooterSettingsPath;
+}
+
 function resolvePreferredMediaDir() {
   const configBaseDir = resolveConfigBaseDir();
   const configMediaDir = configBaseDir ? path.join(configBaseDir, "media") : null;
@@ -266,6 +276,7 @@ async function publishStaticAndMaybeFtp(cfg) {
       configDir: resolveConfigDir(),
     });
     if (built && built.settingsSource) log("Settings source:", built.settingsSource);
+    if (built && built.footerSettingsSource) log("Footer settings source:", built.footerSettingsSource);
     if (built && built.configBaseDir) log("Config base dir:", built.configBaseDir);
 
     writeStatus({ lastPublishAt: new Date().toISOString(), lastPublishError: null });
@@ -589,14 +600,23 @@ app.get("/settings.json", (req, res) => {
 app.get("/signage2/settings.json", (req, res) => {
   res.type("application/json").sendFile(resolvePreferredSettingsPath());
 });
+app.get("/footer/footer-settings.json", (req, res) => {
+  res.type("application/json").sendFile(resolvePreferredFooterSettingsPath());
+});
+app.get("/footer-settings.json", (req, res) => {
+  res.type("application/json").sendFile(resolvePreferredFooterSettingsPath());
+});
 app.use("/media", express.static(resolvePreferredMediaDir()));
 app.use("/media", express.static(path.join(STATIC_OUT_DIR, "media")));
 app.use("/signage2/media", express.static(resolvePreferredMediaDir()));
 app.use("/signage2/media", express.static(path.join(STATIC_OUT_DIR, "media")));
+app.use("/footer/media", express.static(resolvePreferredMediaDir()));
+app.use("/footer/media", express.static(path.join(STATIC_OUT_DIR, "media")));
 
 // Serve generated static pages (also useful for local preview)
 app.use("/list", express.static(path.join(STATIC_OUT_DIR, "list")));
 app.use("/signage2", express.static(path.join(STATIC_OUT_DIR, "signage2")));
+app.use("/footer", express.static(path.join(STATIC_OUT_DIR, "footer")));
 app.use(express.static(STATIC_OUT_DIR));
 
 app.get("/", (req, res) => {

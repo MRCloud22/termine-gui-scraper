@@ -1,0 +1,24 @@
+{
+  "footer": {
+    "height": 200,
+    "title": "WEITERE TERMINE (TICKER):",
+    "showArrow": true,
+    "backgroundColor": "#F4F1E9",
+    "borderColor": "rgba(94, 115, 103, 0.26)",
+    "labelColor": "#6b5540",
+    "textColor": "#222222",
+    "cardBackground": "#f8f6f1",
+    "cardBorderColor": "rgba(0, 0, 0, 0.08)",
+    "priceColor": "#222222",
+    "oldPriceColor": "#d32f2f",
+    "itemGap": 26,
+    "cardHeight": 112,
+    "cardRadius": 50,
+    "cardMinWidth": 420,
+    "footerPaddingX": 24,
+    "footerPaddingY": 10,
+    "scrollSpeedPxPerSec": 90,
+    "dataRefreshSeconds": 60,
+    "emptyText": "Aktuell sind keine weiteren Termine vorhanden."
+  }
+}

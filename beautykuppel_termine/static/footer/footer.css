@@ -1,0 +1,199 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap");
+
+:root {
+  --footer-height: 200px;
+  --footer-bg: #f4f1e9;
+  --footer-border: rgba(94, 115, 103, 0.26);
+  --label-color: #6b5540;
+  --text-color: #222;
+  --card-bg: #f8f6f1;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --price-color: #222;
+  --old-price-color: #d32f2f;
+  --item-gap: 26px;
+  --card-radius: 50px;
+  --card-height: 112px;
+  --card-padding-x: 18px;
+  --footer-padding-x: 24px;
+  --footer-padding-y: 10px;
+  --group-width: 1000px;
+  --marquee-duration: 30s;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Barlow", "Segoe UI", sans-serif;
+  background: transparent;
+}
+
+.footerRoot {
+  width: 100vw;
+  height: var(--footer-height);
+  box-sizing: border-box;
+  background: var(--footer-bg);
+  border-top: 2px solid var(--footer-border);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  padding: var(--footer-padding-y) var(--footer-padding-x);
+}
+
+.footerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+}
+
+.tickerLabel {
+  color: var(--label-color);
+  font-size: 36px;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tickerArrow {
+  color: var(--label-color);
+  font-size: 34px;
+  line-height: 1;
+  user-select: none;
+}
+
+.tickerViewport {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent 0, black 3%, black 97%, transparent 100%);
+}
+
+.tickerTrack {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  transform: translate3d(calc(-1 * var(--group-width)), 0, 0);
+}
+
+.tickerTrack.animate {
+  will-change: transform;
+  animation: footerMarquee var(--marquee-duration) linear infinite;
+}
+
+.tickerGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--item-gap);
+  min-width: max-content;
+}
+
+.tickerCard {
+  height: var(--card-height);
+  min-width: 420px;
+  max-width: 600px;
+  box-sizing: border-box;
+  padding: 10px var(--card-padding-x);
+  border-radius: var(--card-radius);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tickerImage {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.tickerBody {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tickerTime {
+  font-size: 38px;
+  line-height: 1.1;
+  font-weight: 500;
+  color: #4a4a4a;
+}
+
+.tickerTreatment {
+  font-size: 44px;
+  line-height: 1.07;
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tickerPriceWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 130px;
+  margin-left: 8px;
+}
+
+.tickerPrice {
+  font-size: 52px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--price-color);
+  white-space: nowrap;
+}
+
+.tickerOriginalPrice {
+  margin-top: 2px;
+  font-size: 42px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--old-price-color);
+  text-decoration: line-through;
+  white-space: nowrap;
+}
+
+.tickerCard.empty {
+  min-width: 640px;
+  max-width: none;
+  justify-content: center;
+}
+
+.tickerCard.empty .tickerTreatment {
+  font-size: 40px;
+  white-space: normal;
+  text-overflow: clip;
+}
+
+@keyframes footerMarquee {
+  from {
+    transform: translate3d(calc(-1 * var(--group-width)), 0, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (max-width: 1400px) {
+  .tickerLabel { font-size: 28px; }
+  .tickerCard { min-width: 360px; max-width: 520px; }
+  .tickerTime { font-size: 30px; }
+  .tickerTreatment { font-size: 34px; }
+  .tickerPrice { font-size: 40px; }
+  .tickerOriginalPrice { font-size: 32px; }
+}
