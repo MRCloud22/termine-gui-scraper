@@ -169,6 +169,7 @@ export function buildStaticOut({
   const configMediaDir = configBaseDir ? path.join(configBaseDir, "media") : null;
   const settingsPath = path.join(outDir, "settings.json");
   const footerSettingsPath = path.join(outDir, "footer", "footer-settings.json");
+  const footerSettingsRootPath = path.join(outDir, "footer-settings.json");
 
   if (configBaseDir) {
     ensureDir(configBaseDir);
@@ -196,6 +197,7 @@ export function buildStaticOut({
   if (preferredFooterSettingsPath) {
     ensureDir(path.dirname(footerSettingsPath));
     fs.copyFileSync(preferredFooterSettingsPath, footerSettingsPath);
+    fs.copyFileSync(preferredFooterSettingsPath, footerSettingsRootPath);
   }
 
   // Compatibility: also place settings + media into /signage2/
