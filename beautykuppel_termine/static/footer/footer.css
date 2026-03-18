@@ -28,6 +28,7 @@
   --price-gap: 8px;
   --image-text-gap: 14px;
   --image-size: 90px;
+  --image-offset-x: 0px;
   --top-row-height: 36px;
   --group-width: 1000px;
   --marquee-duration: 30s;
@@ -141,7 +142,8 @@ body {
   border: 2px solid rgba(255, 255, 255, 0.95);
   object-fit: cover;
   flex: 0 0 auto;
-  margin-right: var(--image-text-gap);
+  margin-left: var(--image-offset-x);
+  margin-right: calc(var(--image-text-gap) - var(--image-offset-x));
 }
 
 .tickerBody {

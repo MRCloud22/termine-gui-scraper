@@ -28,6 +28,7 @@ const DEFAULTS = {
   priceGap: 8,
   imageTextGap: 14,
   imageSize: 90,
+  imageOffsetX: 0,
   scrollSpeedPxPerSec: 90,
   scrollDirection: "ltr",
   dataRefreshSeconds: 60,
@@ -207,6 +208,9 @@ async function main() {
     const effectiveImageSize = Math.max(24, Math.min(effectiveCardHeight - 12, Math.round(requestedImageSize * cardScale)));
     const effectiveCardPaddingX = Math.max(10, Math.round(18 * cardScale));
     const effectiveCardPaddingY = Math.max(4, Math.round(10 * cardScale));
+    const effectiveImageTextGap = Math.max(0, Math.round((Number(cfg.imageTextGap) || DEFAULTS.imageTextGap) * cardScale));
+    const rawImageOffsetX = Number(cfg.imageOffsetX) || DEFAULTS.imageOffsetX;
+    const effectiveImageOffsetX = Math.max(-(effectiveCardPaddingX - 2), Math.min(effectiveImageTextGap, Math.round(rawImageOffsetX * cardScale)));
 
     document.documentElement.style.setProperty("--footer-height", `${requestedHeight}px`);
     document.documentElement.style.setProperty("--footer-bg", cfg.backgroundColor || DEFAULTS.backgroundColor);
@@ -234,8 +238,9 @@ async function main() {
     document.documentElement.style.setProperty("--original-price-font-size", `${Math.max(10, Math.round((Number(cfg.originalPriceFontSize) || DEFAULTS.originalPriceFontSize) * cardScale))}px`);
     document.documentElement.style.setProperty("--empty-font-size", `${Math.max(10, Math.round((Number(cfg.emptyFontSize) || DEFAULTS.emptyFontSize) * cardScale))}px`);
     document.documentElement.style.setProperty("--price-gap", `${Math.max(0, Number(cfg.priceGap) || DEFAULTS.priceGap)}px`);
-    document.documentElement.style.setProperty("--image-text-gap", `${Math.max(0, Math.round((Number(cfg.imageTextGap) || DEFAULTS.imageTextGap) * cardScale))}px`);
+    document.documentElement.style.setProperty("--image-text-gap", `${effectiveImageTextGap}px`);
     document.documentElement.style.setProperty("--image-size", `${effectiveImageSize}px`);
+    document.documentElement.style.setProperty("--image-offset-x", `${effectiveImageOffsetX}px`);
 
     tickerLabel.textContent = fixText(String(cfg.title || DEFAULTS.title));
     arrow.style.display = cfg.showArrow === false ? "none" : "block";

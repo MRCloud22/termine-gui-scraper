@@ -32,6 +32,7 @@
     "emptyText": "Aktuell sind keine weiteren Termine vorhanden.",
     "cardMaxWidth": 600,
     "titleOffsetX": 0,
-    "imageSize": 90
+    "imageSize": 90,
+    "imageOffsetX": 0
   }
 }
