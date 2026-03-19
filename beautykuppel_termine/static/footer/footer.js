@@ -161,21 +161,11 @@ function buildCard(apt, fallbackImage, cfg) {
   return card;
 }
 
-function buildEmptyCard(text, cfg) {
-  const card = document.createElement("article");
-  card.className = "tickerCard empty";
-  const minWidth = Math.max(360, Number(cfg.cardMinWidth) || DEFAULTS.cardMinWidth);
-  const maxWidth = Math.max(minWidth, Number(cfg.cardMaxWidth) || DEFAULTS.cardMaxWidth);
-  card.style.minWidth = `${minWidth}px`;
-  card.style.maxWidth = `${maxWidth}px`;
-  card.style.width = `${maxWidth}px`;
-
+function buildEmptyTickerText(text) {
   const msg = document.createElement("div");
-  msg.className = "tickerTreatment";
+  msg.className = "tickerEmptyText";
   msg.textContent = fixText(text);
-
-  card.appendChild(msg);
-  return card;
+  return msg;
 }
 
 function settingsSignature(settings) {
@@ -398,10 +388,20 @@ async function main() {
     const direction = getScrollDirection(cfg);
 
     if (!appointments.length) {
-      group.appendChild(buildEmptyCard(cfg.emptyText || DEFAULTS.emptyText, cfg));
-      const clone = group.cloneNode(true);
-      tickerTrack.append(group, clone);
-      applyTrackAnimation(direction, 28, 720);
+      group.appendChild(buildEmptyTickerText(cfg.emptyText || DEFAULTS.emptyText));
+      tickerTrack.append(group);
+
+      requestAnimationFrame(() => {
+        const clone = group.cloneNode(true);
+        tickerTrack.append(clone);
+
+        const width = Math.ceil(group.getBoundingClientRect().width || 0);
+        const speed = Math.max(25, Number(cfg.scrollSpeedPxPerSec) || DEFAULTS.scrollSpeedPxPerSec);
+        const groupGap = Math.max(8, Number(cfg.itemGap) || DEFAULTS.itemGap);
+        const safeWidth = Math.max(320, width + groupGap);
+        const durationSec = Math.max(8, safeWidth / speed);
+        applyTrackAnimation(direction, durationSec, safeWidth);
+      });
       return;
     }
 

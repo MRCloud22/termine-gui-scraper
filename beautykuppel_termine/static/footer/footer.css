@@ -211,16 +211,13 @@ body {
   font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
-.tickerCard.empty {
-  min-width: 640px;
-  max-width: none;
-  justify-content: center;
-}
-
-.tickerCard.empty .tickerTreatment {
+.tickerEmptyText {
+  flex: 0 0 auto;
   font-size: var(--empty-font-size);
-  white-space: normal;
-  text-overflow: clip;
+  line-height: 1.1;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
 }
 
 @keyframes footerMarqueeLtr {
