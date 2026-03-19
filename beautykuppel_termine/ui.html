@@ -38,6 +38,18 @@
             <span>Intervall (Minuten)</span>
             <input id="refreshMinutes" type="number" min="1" step="1" value="5" />
           </label>
+          <label class="field">
+            <span>Auto-Pause von</span>
+            <input id="autoPauseFrom" type="time" step="60" />
+          </label>
+          <label class="field">
+            <span>Auto-Pause bis</span>
+            <input id="autoPauseTo" type="time" step="60" />
+          </label>
+          <div class="field field--full">
+            <span>Hinweis</span>
+            <div class="hint">In diesem Zeitraum werden keine automatischen Abfragen ausgefuehrt. Beide Felder leer lassen = deaktiviert.</div>
+          </div>
           <div class="actions">
             <button id="saveConfig" class="btn btn--primary">Speichern</button>
             <button id="runNow" class="btn">Jetzt abfragen</button>

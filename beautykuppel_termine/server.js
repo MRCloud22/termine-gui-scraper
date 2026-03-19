@@ -115,6 +115,8 @@ function defaultConfig() {
     endDateTime,
     useTodayWindow: true,
     refreshMinutes: 5,
+    autoPauseFrom: "",
+    autoPauseTo: "",
     templateIds: [],
     treatmentRules: {},
     staticExport: {
@@ -413,6 +415,59 @@ function datePartFromDateTimeLocal(value) {
   return m ? m[1] : null;
 }
 
+function normalizeDailyTime(value) {
+  if (typeof value !== "string") return "";
+  const m = value.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return "";
+  const hh = Number(m[1]);
+  const mm = Number(m[2]);
+  if (!Number.isFinite(hh) || !Number.isFinite(mm) || hh < 0 || hh > 23 || mm < 0 || mm > 59) {
+    return "";
+  }
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
+
+function parseDailyTimeMinutes(value) {
+  const normalized = normalizeDailyTime(value);
+  if (!normalized) return null;
+  const [hh, mm] = normalized.split(":").map(Number);
+  return hh * 60 + mm;
+}
+
+function getAutoPauseWindow(cfg) {
+  const from = normalizeDailyTime(cfg?.autoPauseFrom);
+  const to = normalizeDailyTime(cfg?.autoPauseTo);
+  const fromMinutes = parseDailyTimeMinutes(from);
+  const toMinutes = parseDailyTimeMinutes(to);
+  if (fromMinutes == null || toMinutes == null || fromMinutes === toMinutes) return null;
+  return { from, to, fromMinutes, toMinutes };
+}
+
+function getAutoPauseWindowEnd(now, window) {
+  if (!window) return null;
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const wrapsMidnight = window.fromMinutes > window.toMinutes;
+  const isBlocked = wrapsMidnight
+    ? currentMinutes >= window.fromMinutes || currentMinutes < window.toMinutes
+    : currentMinutes >= window.fromMinutes && currentMinutes < window.toMinutes;
+  if (!isBlocked) return null;
+
+  const end = new Date(now);
+  end.setSeconds(0, 0);
+  end.setHours(Math.floor(window.toMinutes / 60), window.toMinutes % 60, 0, 0);
+  if (wrapsMidnight && currentMinutes >= window.fromMinutes) end.setDate(end.getDate() + 1);
+  return end;
+}
+
+function computeNextAutoRunDate(now, cfg, intervalMs) {
+  const window = getAutoPauseWindow(cfg);
+  if (!window) return new Date(now.getTime() + intervalMs);
+  const blockedNowUntil = getAutoPauseWindowEnd(now, window);
+  if (blockedNowUntil) return blockedNowUntil;
+  const candidate = new Date(now.getTime() + intervalMs);
+  return getAutoPauseWindowEnd(candidate, window) || candidate;
+}
+
 async function runQueryOnce() {
   if (runInProgress) {
     log("Scrape skipped: previous run is still active");
@@ -578,28 +633,48 @@ async function runQueryOnce() {
 }
 
 function stopTimer() {
-  if (timer) clearInterval(timer);
+  if (timer) clearTimeout(timer);
   timer = null;
   writeStatus({ timerActive: false, nextRunAt: null });
 }
 
 function startTimerFromConfig() {
   stopTimer();
-  const cfg = readConfig();
-  const minutes = Number(cfg.refreshMinutes) || 0;
-  if (!minutes || minutes < 1) return;
 
-  const ms = minutes * 60 * 1000;
-  const computeNext = () => new Date(Date.now() + ms).toISOString();
-  writeStatus({ timerActive: true, nextRunAt: computeNext() });
-  timer = setInterval(async () => {
-    try {
-      writeStatus({ nextRunAt: computeNext() });
-      await runQueryOnce();
-    } catch (e) {
-      writeStatus({ lastRunAt: new Date().toISOString(), lastError: e?.message || String(e) });
+  const scheduleNext = () => {
+    const cfg = readConfig();
+    const minutes = Number(cfg.refreshMinutes) || 0;
+    if (!minutes || minutes < 1) {
+      timer = null;
+      writeStatus({ timerActive: false, nextRunAt: null });
+      return;
     }
-  }, ms);
+
+    const ms = minutes * 60 * 1000;
+    const nextRun = computeNextAutoRunDate(new Date(), cfg, ms);
+    const delayMs = Math.max(1000, nextRun.getTime() - Date.now());
+    writeStatus({ timerActive: true, nextRunAt: nextRun.toISOString() });
+
+    timer = setTimeout(async () => {
+      timer = null;
+      try {
+        const runCfg = readConfig();
+        const blockWindow = getAutoPauseWindow(runCfg);
+        const blockedUntil = getAutoPauseWindowEnd(new Date(), blockWindow);
+        if (blockedUntil && blockWindow) {
+          log(`Automatic scrape paused due to quiet hours ${blockWindow.from}-${blockWindow.to}`);
+        } else {
+          await runQueryOnce();
+        }
+      } catch (e) {
+        writeStatus({ lastRunAt: new Date().toISOString(), lastError: e?.message || String(e) });
+      } finally {
+        scheduleNext();
+      }
+    }, delayMs);
+  };
+
+  scheduleNext();
 }
 
 // Serve dynamic settings/media first so signage changes in /config are visible immediately.
@@ -661,6 +736,10 @@ app.post("/api/config", (req, res) => {
     typeof body.endDateTime === "string"
       ? body.endDateTime
       : prev.endDateTime || `${prev.endDate}T23:59`;
+  const autoPauseFrom =
+    typeof body.autoPauseFrom === "string" ? normalizeDailyTime(body.autoPauseFrom) : normalizeDailyTime(prev.autoPauseFrom);
+  const autoPauseTo =
+    typeof body.autoPauseTo === "string" ? normalizeDailyTime(body.autoPauseTo) : normalizeDailyTime(prev.autoPauseTo);
 
   // minimal sanity: if range is inverted, swap
   const startTs = parseDateTimeLocal(startDateTime);
@@ -683,6 +762,8 @@ app.post("/api/config", (req, res) => {
     endDateTime: fixedEndDateTime,
     useTodayWindow,
     refreshMinutes: Number(body.refreshMinutes) || prev.refreshMinutes,
+    autoPauseFrom,
+    autoPauseTo,
     templateIds: Array.isArray(body.templateIds) ? body.templateIds.map(Number) : prev.templateIds,
     treatmentRules:
       typeof body.treatmentRules === "object" && body.treatmentRules
@@ -766,6 +847,20 @@ app.post("/api/stop", (req, res) => {
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   log(`Beautykuppel Termine running on http://localhost:${PORT}`);
+  const startupCfg = readConfig();
+  const startupBlockWindow = getAutoPauseWindow(startupCfg);
+  const blockedUntil = getAutoPauseWindowEnd(new Date(), startupBlockWindow);
+
+  if (blockedUntil && startupBlockWindow) {
+    log(`Startup scrape skipped due to quiet hours ${startupBlockWindow.from}-${startupBlockWindow.to}`);
+    publishStaticAndMaybeFtp(startupCfg)
+      .catch(() => {})
+      .finally(() => {
+        startTimerFromConfig();
+      });
+    return;
+  }
+
   // Start one scrape immediately on app startup, then continue with configured interval.
   runQueryOnce()
     .catch((e) => {

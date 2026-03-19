@@ -105,6 +105,10 @@ h2 {
   align-content: start;
 }
 
+.field--full {
+  grid-column: 1 / -1;
+}
+
 .field span {
   color: var(--muted);
   font-family: var(--mono);
@@ -112,6 +116,8 @@ h2 {
 }
 
 input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
 input[type="number"],
 input[type="search"],
 select {
@@ -320,6 +326,17 @@ a.link:hover {
   font-family: var(--mono);
   font-size: 12px;
   margin: 0 0 10px;
+}
+
+.hint {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.4;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(248, 245, 239, 0.8);
 }
 
 @media (max-width: 980px) {

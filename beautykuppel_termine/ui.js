@@ -26,6 +26,16 @@ function todayWindow() {
   return { start, end };
 }
 
+function normalizeDailyTime(value) {
+  if (typeof value !== "string") return "";
+  const match = value.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return "";
+  const hh = Number(match[1]);
+  const mm = Number(match[2]);
+  if (!Number.isFinite(hh) || !Number.isFinite(mm) || hh < 0 || hh > 23 || mm < 0 || mm > 59) return "";
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
+
 function setAbfrageMode(enabled) {
   useTodayWindow = !!enabled;
   const startEl = $("startDateTime");
@@ -256,6 +266,8 @@ async function loadConfig() {
     setAbfrageMode(false);
   }
   if (cfg.refreshMinutes) $("refreshMinutes").value = cfg.refreshMinutes;
+  $("autoPauseFrom").value = normalizeDailyTime(cfg.autoPauseFrom);
+  $("autoPauseTo").value = normalizeDailyTime(cfg.autoPauseTo);
   selectedTemplateIds = new Set((cfg.templateIds || []).map(Number));
   rulesByTemplateId = new Map();
   if (cfg.treatmentRules && typeof cfg.treatmentRules === "object") {
@@ -328,6 +340,8 @@ async function saveConfig() {
     startDateTime,
     endDateTime,
     refreshMinutes: Number($("refreshMinutes").value),
+    autoPauseFrom: normalizeDailyTime($("autoPauseFrom").value),
+    autoPauseTo: normalizeDailyTime($("autoPauseTo").value),
     templateIds: Array.from(selectedTemplateIds),
     treatmentRules,
   };
