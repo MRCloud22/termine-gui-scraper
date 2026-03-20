@@ -328,7 +328,7 @@ async function main() {
   // Footer/QR text
   const qrLabel = custom.qrLabel != null ? custom.qrLabel : "Infos & Buchung unter";
   const qrUrl = custom.qrUrl != null ? custom.qrUrl : "beautykuppel.de/termine";
-  $("qrText").innerHTML = `${qrLabel}<br/><strong>${qrUrl}</strong>`;
+  $("qrText").innerHTML = `<span class="qrLabelText">${qrLabel}</span><strong class="qrUrlText">${qrUrl}</strong>`;
 
   const emptyText = custom.emptyText != null ? custom.emptyText : "Aktuell sind keine freien Termine vorhanden.";
 

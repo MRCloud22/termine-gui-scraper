@@ -278,6 +278,16 @@ body {
     font-weight: 600;
     text-align: right;
     margin-top: -10px;
+    line-height: 1.35;
+}
+
+.qrLabelText {
+    display: block;
+}
+
+.qrUrlText {
+    display: block;
+    margin-top: 8px;
 }
 
 @keyframes slideIn {
@@ -298,6 +308,7 @@ body {
     text-align: center;
     padding: 140px 0;
     font-weight: 600;
+    line-height: 1.45;
 }
 
 .promoScreen {
