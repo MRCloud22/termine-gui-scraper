@@ -115,6 +115,7 @@ function defaultConfig() {
     endDateTime,
     useTodayWindow: true,
     refreshMinutes: 5,
+    minLeadMinutes: 0,
     autoPauseFrom: "",
     autoPauseTo: "",
     templateIds: [],
@@ -513,12 +514,14 @@ async function runQueryOnce() {
     }
     const startTs = parseDateTimeLocal(startDt);
     const endTs = parseDateTimeLocal(endDt);
+    const minLeadMinutes = Math.max(0, Number(cfg.minLeadMinutes) || 0);
+    const minSlotTs = minLeadMinutes > 0 ? Date.now() + minLeadMinutes * 60 * 1000 : null;
     const startDate = datePartFromDateTimeLocal(startDt) || cfg.startDate;
     const endDate = datePartFromDateTimeLocal(endDt) || cfg.endDate;
     const isoDates = enumerateIsoDates(startDate, endDate);
     const throttleMs = Math.max(0, Number(process.env.AVAILABILITY_THROTTLE_MS || 150) || 0);
     log(
-      `Scrape run started: templates=${enabled.size}, dates=${isoDates.length}, range=${startDt}..${endDt}, throttleMs=${throttleMs}`,
+      `Scrape run started: templates=${enabled.size}, dates=${isoDates.length}, range=${startDt}..${endDt}, throttleMs=${throttleMs}, minLeadMinutes=${minLeadMinutes}`,
     );
 
     const out = [];
@@ -557,6 +560,7 @@ async function runQueryOnce() {
             seenSlotTs.add(slotTs);
 
             if (startTs != null && slotTs < startTs) continue;
+            if (minSlotTs != null && slotTs < minSlotTs) continue;
             if (endTs != null && slotTs > endTs) break;
 
             if (lastSelectedTs != null && rule.minGapMinutes > 0) {
@@ -736,6 +740,7 @@ app.post("/api/config", (req, res) => {
     typeof body.endDateTime === "string"
       ? body.endDateTime
       : prev.endDateTime || `${prev.endDate}T23:59`;
+  const minLeadMinutes = Math.max(0, Number(body.minLeadMinutes));
   const autoPauseFrom =
     typeof body.autoPauseFrom === "string" ? normalizeDailyTime(body.autoPauseFrom) : normalizeDailyTime(prev.autoPauseFrom);
   const autoPauseTo =
@@ -762,6 +767,7 @@ app.post("/api/config", (req, res) => {
     endDateTime: fixedEndDateTime,
     useTodayWindow,
     refreshMinutes: Number(body.refreshMinutes) || prev.refreshMinutes,
+    minLeadMinutes: Number.isFinite(minLeadMinutes) ? minLeadMinutes : Math.max(0, Number(prev.minLeadMinutes) || 0),
     autoPauseFrom,
     autoPauseTo,
     templateIds: Array.isArray(body.templateIds) ? body.templateIds.map(Number) : prev.templateIds,

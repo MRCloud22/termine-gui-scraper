@@ -266,6 +266,7 @@ async function loadConfig() {
     setAbfrageMode(false);
   }
   if (cfg.refreshMinutes) $("refreshMinutes").value = cfg.refreshMinutes;
+  $("minLeadMinutes").value = Math.max(0, Number(cfg.minLeadMinutes) || 0);
   $("autoPauseFrom").value = normalizeDailyTime(cfg.autoPauseFrom);
   $("autoPauseTo").value = normalizeDailyTime(cfg.autoPauseTo);
   selectedTemplateIds = new Set((cfg.templateIds || []).map(Number));
@@ -340,6 +341,7 @@ async function saveConfig() {
     startDateTime,
     endDateTime,
     refreshMinutes: Number($("refreshMinutes").value),
+    minLeadMinutes: Math.max(0, Number($("minLeadMinutes").value) || 0),
     autoPauseFrom: normalizeDailyTime($("autoPauseFrom").value),
     autoPauseTo: normalizeDailyTime($("autoPauseTo").value),
     templateIds: Array.from(selectedTemplateIds),

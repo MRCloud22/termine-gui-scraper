@@ -35,6 +35,7 @@ Bilder in `/config/beautykuppel_termine/media/` ueberschreiben die Standardbilde
 - `overrideConfig`: Wenn `true`, ueberschreiben Add-on Optionen die GUI-Konfiguration
 - `useTodayWindow`: Wenn `true`, wird bei jedem Run automatisch der aktuelle Tag `00:00-23:59` genommen
 - `startDateTime` / `endDateTime`: Optionaler Zeitraum (`YYYY-MM-DDTHH:MM`), nur genutzt wenn `useTodayWindow=false`
+- `minLeadMinutes`: Mindestvorlauf fuer freie Termine ab jetzt; fruehere Slots werden ignoriert
 - `autoPauseFrom` / `autoPauseTo`: Optionales taegliches Sperrfenster (`HH:MM`), in dem keine automatischen Abfragen laufen
 - `staticExportEnabled`: erzeugt `/data/out/` nach jedem Run
 - FTP (optional): `ftpEnabled`, `ftpHost`, `ftpPort`, `ftpUser`, `ftpPassword`, `ftpSecure`, `ftpRemotePath`
