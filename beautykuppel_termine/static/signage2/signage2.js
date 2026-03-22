@@ -410,40 +410,48 @@ async function main() {
   async function step() {
     if (showingPromo) return;
     await fetchAppointments();
-    render();
 
     if (!all.length) {
       visibleStart = 0;
+      render();
       return;
     }
 
     if (all.length <= VISIBLE_COUNT) {
       visibleStart = 0;
+      render();
       if (promoEnabled) {
         showingPromo = true;
         render();
         setTimeout(() => {
           showingPromo = false;
+          visibleStart = 0;
           render();
         }, promoDurationSec * 1000);
       }
       return;
     }
 
+    if (visibleStart >= all.length) visibleStart = 0;
     const nextStart = visibleStart + VISIBLE_COUNT;
     if (nextStart >= all.length) {
-      visibleStart = 0;
       if (promoEnabled) {
         showingPromo = true;
         render();
         setTimeout(() => {
           showingPromo = false;
+          visibleStart = 0;
           render();
         }, promoDurationSec * 1000);
+        return;
       }
-    } else {
-      visibleStart = nextStart;
+      visibleStart = 0;
+      render();
+      return;
     }
+
+    visibleStart = nextStart;
+    render();
   }
 
   await fetchAppointments();
