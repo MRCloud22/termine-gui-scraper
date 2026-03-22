@@ -73,9 +73,15 @@ export function buildAppointmentsJson(results) {
 
 export function buildRssXml(appointmentsJson, settings) {
   const appointments = appointmentsJson?.appointments || [];
+  const signageSettings =
+    settings?.signage2 && typeof settings.signage2 === "object"
+      ? settings.signage2
+      : settings && typeof settings === "object"
+        ? settings
+        : {};
   const emptyStateText =
-    settings?.signage2?.emptyText != null
-      ? settings.signage2.emptyText
+    signageSettings.emptyText != null
+      ? signageSettings.emptyText
       : settings?.emptyStateText != null
         ? settings.emptyStateText
         : settings?.appSettings?.emptyStateText != null
