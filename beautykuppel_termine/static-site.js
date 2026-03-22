@@ -74,10 +74,13 @@ export function buildAppointmentsJson(results) {
 export function buildRssXml(appointmentsJson, settings) {
   const appointments = appointmentsJson?.appointments || [];
   const emptyStateText =
-    settings?.signage2?.emptyText ||
-    settings?.emptyStateText ||
-    settings?.appSettings?.emptyStateText ||
-    "Aktuell sind keine freien Termine vorhanden.";
+    settings?.signage2?.emptyText != null
+      ? settings.signage2.emptyText
+      : settings?.emptyStateText != null
+        ? settings.emptyStateText
+        : settings?.appSettings?.emptyStateText != null
+          ? settings.appSettings.emptyStateText
+          : "Aktuell sind keine freien Termine vorhanden.";
 
   let rss = `<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n` +
     `<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n` +
