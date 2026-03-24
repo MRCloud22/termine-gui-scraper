@@ -1,6 +1,6 @@
 name: Beautykuppel Termine
 slug: beautykuppel_termine
-version: 0.1.54
+version: 0.1.55
 description: Fragt freie Behandlungstermine im Beautykuppel-Shop ab, erzeugt statische Seiten (/list, /signage2) + JSON/RSS und kann optional per FTP hochladen.
 url: https://github.com/MRCloud22/termine-gui-scraper
 startup: services

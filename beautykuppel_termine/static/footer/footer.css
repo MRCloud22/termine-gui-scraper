@@ -33,6 +33,8 @@
   --top-row-height: 36px;
   --group-width: 1000px;
   --marquee-duration: 30s;
+  --edge-fade-left: 32px;
+  --edge-fade-right: 32px;
 }
 
 html,
@@ -92,7 +94,13 @@ body {
   overflow: hidden;
   display: flex;
   align-items: center;
-  mask-image: linear-gradient(to right, transparent 0, black 3%, black 97%, transparent 100%);
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black var(--edge-fade-left),
+    black calc(100% - var(--edge-fade-right)),
+    transparent 100%
+  );
 }
 
 .tickerTrack {

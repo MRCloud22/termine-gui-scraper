@@ -32,6 +32,8 @@ const DEFAULTS = {
   imageTextGap: 14,
   imageSize: 90,
   imageOffsetX: 0,
+  edgeFadeLeftPx: 32,
+  edgeFadeRightPx: 32,
   scrollSpeedPxPerSec: 90,
   scrollDirection: "ltr",
   dataRefreshSeconds: 60,
@@ -279,6 +281,8 @@ async function main() {
     const effectiveImageTextGap = Math.max(0, Math.round((Number(cfg.imageTextGap) || DEFAULTS.imageTextGap) * layoutScale));
     const rawImageOffsetX = Number(cfg.imageOffsetX) || DEFAULTS.imageOffsetX;
     const effectiveImageOffsetX = Math.max(-(effectiveCardPaddingX - 2), Math.min(effectiveImageTextGap, Math.round(rawImageOffsetX * layoutScale)));
+    const edgeFadeLeftPx = Math.max(0, Math.round(Number(cfg.edgeFadeLeftPx) || DEFAULTS.edgeFadeLeftPx));
+    const edgeFadeRightPx = Math.max(0, Math.round(Number(cfg.edgeFadeRightPx) || DEFAULTS.edgeFadeRightPx));
     const titleBottomGap = Math.max(0, Math.round((Number(cfg.titleBottomGap) || DEFAULTS.titleBottomGap) * layoutScale));
     const topRowHeight = Math.max(
       Math.round(28 * layoutScale),
@@ -316,6 +320,8 @@ async function main() {
     document.documentElement.style.setProperty("--image-text-gap", `${effectiveImageTextGap}px`);
     document.documentElement.style.setProperty("--image-size", `${effectiveImageSize}px`);
     document.documentElement.style.setProperty("--image-offset-x", `${effectiveImageOffsetX}px`);
+    document.documentElement.style.setProperty("--edge-fade-left", `${edgeFadeLeftPx}px`);
+    document.documentElement.style.setProperty("--edge-fade-right", `${edgeFadeRightPx}px`);
 
     tickerLabel.textContent = fixText(String(cfg.title || DEFAULTS.title));
     arrow.style.display = cfg.showArrow === false ? "none" : "block";
