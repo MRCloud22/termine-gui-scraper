@@ -36,6 +36,7 @@
     "imageOffsetX": 0,
     "edgeFadeLeftPx": 32,
     "edgeFadeRightPx": 32,
+    "fadeEnabled": true,
     "globalScale": 1,
     "titleFontSize": 36,
     "titleBottomGap": 0

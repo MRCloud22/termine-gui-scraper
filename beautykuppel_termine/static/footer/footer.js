@@ -1,3 +1,6 @@
+const REF_W = 1080;
+const REF_H = 200;
+
 const DEFAULTS = {
   height: 200,
   title: "WEITERE TERMINE (TICKER):",
@@ -34,6 +37,7 @@ const DEFAULTS = {
   imageOffsetX: 0,
   edgeFadeLeftPx: 32,
   edgeFadeRightPx: 32,
+  fadeEnabled: true,
   scrollSpeedPxPerSec: 90,
   scrollDirection: "ltr",
   dataRefreshSeconds: 60,
@@ -194,9 +198,9 @@ function getCardContentMinWidth(card) {
   const paddingRight = parseFloat(cardStyle.paddingRight) || 0;
   const imageStyle = image ? getComputedStyle(image) : null;
   const imageBlock = image
-    ? (image.getBoundingClientRect().width || 0) + (parseFloat(imageStyle.marginLeft) || 0) + (parseFloat(imageStyle.marginRight) || 0)
+    ? (image.offsetWidth || image.clientWidth || 0) + (parseFloat(imageStyle.marginLeft) || 0) + (parseFloat(imageStyle.marginRight) || 0)
     : 0;
-  const priceBlock = priceWrap ? (priceWrap.getBoundingClientRect().width || 0) + (parseFloat(getComputedStyle(priceWrap).marginLeft) || 0) : 0;
+  const priceBlock = priceWrap ? (priceWrap.offsetWidth || priceWrap.clientWidth || 0) + (parseFloat(getComputedStyle(priceWrap).marginLeft) || 0) : 0;
   const timeWidth = time ? measureTextWidth(time.textContent, time) : 0;
   const words = String(treatment?.textContent || "").trim().split(/\s+/).filter(Boolean);
   const longestWordWidth = treatment && words.length ? Math.max(...words.map((word) => measureTextWidth(word, treatment))) : 0;
@@ -222,10 +226,10 @@ function canShrinkCard(card) {
 function tightenCardWidths(group) {
   const cards = Array.from(group.querySelectorAll(".tickerCard:not(.empty)"));
   for (const card of cards) {
-    const configuredMinWidth = Math.max(0, Math.round(parseFloat(card.style.minWidth) || card.getBoundingClientRect().width || 0));
+    const configuredMinWidth = Math.max(0, Math.round(parseFloat(card.style.minWidth) || card.offsetWidth || card.clientWidth || 0));
     const contentMinWidth = getCardContentMinWidth(card);
     const minWidth = Math.max(configuredMinWidth, contentMinWidth);
-    const maxWidth = Math.max(minWidth, Math.round(parseFloat(card.style.maxWidth) || card.getBoundingClientRect().width || minWidth));
+    const maxWidth = Math.max(minWidth, Math.round(parseFloat(card.style.maxWidth) || card.offsetWidth || card.clientWidth || minWidth));
 
     card.style.width = `${maxWidth}px`;
     let low = minWidth;
@@ -248,10 +252,22 @@ function tightenCardWidths(group) {
 }
 
 async function main() {
+  const scaleEl = $("scale");
   const footerRoot = $("footerRoot");
   const tickerLabel = $("tickerLabel");
   const tickerTrack = $("tickerTrack");
+  const tickerViewport = $("tickerViewport");
   const arrow = document.querySelector(".tickerArrow");
+
+  function updateScale() {
+    const vw = window.innerWidth || REF_W;
+    const vh = window.innerHeight || REF_H;
+    const scale = Math.min(vw / REF_W, vh / REF_H);
+    scaleEl.style.transform = `scale(${scale})`;
+    const scaledW = REF_W * scale;
+    scaleEl.style.left = `${Math.max(0, (vw - scaledW) / 2)}px`;
+    scaleEl.style.top = "0px";
+  }
 
   let cfg = { ...DEFAULTS };
   let cfgSig = settingsSignature(cfg);
@@ -261,9 +277,9 @@ async function main() {
   let resizeTimer = null;
 
   function applyTheme() {
-    const requestedHeight = Math.max(120, Number(cfg.height) || DEFAULTS.height);
+    const requestedHeight = Math.max(80, Math.min(REF_H, Number(cfg.height) || DEFAULTS.height));
     const globalScale = Math.max(0.4, Number(cfg.globalScale) || DEFAULTS.globalScale);
-    const layoutScale = (requestedHeight / DEFAULTS.height) * globalScale;
+    const layoutScale = (requestedHeight / REF_H) * globalScale;
     const footerPaddingX = Math.max(0, Math.round((Number(cfg.footerPaddingX) || DEFAULTS.footerPaddingX) * layoutScale));
     const footerPaddingY = Math.max(0, Math.round((Number(cfg.footerPaddingY) || DEFAULTS.footerPaddingY) * layoutScale));
     const titleFontSizeBase = cfg.titleFontSize ?? cfg.labelFontSize ?? DEFAULTS.titleFontSize;
@@ -291,6 +307,8 @@ async function main() {
     );
 
     document.documentElement.style.setProperty("--footer-height", `${requestedHeight}px`);
+    document.documentElement.style.setProperty("--footer-canvas-width", `${REF_W}px`);
+    document.documentElement.style.setProperty("--footer-canvas-height", `${REF_H}px`);
     document.documentElement.style.setProperty("--footer-bg", cfg.backgroundColor || DEFAULTS.backgroundColor);
     document.documentElement.style.setProperty("--footer-border", cfg.borderColor || DEFAULTS.borderColor);
     document.documentElement.style.setProperty("--label-color", cfg.labelColor || DEFAULTS.labelColor);
@@ -325,7 +343,7 @@ async function main() {
 
     tickerLabel.textContent = fixText(String(cfg.title || DEFAULTS.title));
     arrow.style.display = cfg.showArrow === false ? "none" : "block";
-    footerRoot.style.height = `${requestedHeight}px`;
+    tickerViewport.classList.toggle("noFade", cfg.fadeEnabled === false);
   }
 
   function restartAppointmentsTimer() {
@@ -401,7 +419,7 @@ async function main() {
         const clone = group.cloneNode(true);
         tickerTrack.append(clone);
 
-        const width = Math.ceil(group.getBoundingClientRect().width || 0);
+        const width = Math.ceil(group.scrollWidth || group.offsetWidth || 0);
         const speed = Math.max(25, Number(cfg.scrollSpeedPxPerSec) || DEFAULTS.scrollSpeedPxPerSec);
         const groupGap = Math.max(8, Number(cfg.itemGap) || DEFAULTS.itemGap);
         const safeWidth = Math.max(320, width + groupGap);
@@ -423,7 +441,7 @@ async function main() {
       tickerTrack.append(clone);
       tightenCardWidths(clone);
 
-      const width = Math.ceil(group.getBoundingClientRect().width || 0);
+      const width = Math.ceil(group.scrollWidth || group.offsetWidth || 0);
       const speed = Math.max(25, Number(cfg.scrollSpeedPxPerSec) || DEFAULTS.scrollSpeedPxPerSec);
       const groupGap = Math.max(8, Number(cfg.itemGap) || DEFAULTS.itemGap);
       const safeWidth = Math.max(320, width + groupGap);
@@ -431,6 +449,8 @@ async function main() {
       applyTrackAnimation(direction, durationSec, safeWidth);
     });
   }
+
+  updateScale();
 
   await loadSettings(true);
   if (document.fonts && document.fonts.ready) {
@@ -446,6 +466,7 @@ async function main() {
   }, 15000);
 
   window.addEventListener("resize", () => {
+    updateScale();
     if (resizeTimer) clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => render(), 120);
   });
