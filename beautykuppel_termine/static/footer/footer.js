@@ -123,10 +123,14 @@ function buildCard(apt, fallbackImage, cfg) {
   const card = document.createElement("article");
   card.className = "tickerCard";
   const minWidth = Math.max(80, Number(cfg.cardMinWidth) || DEFAULTS.cardMinWidth);
-  const maxWidth = Math.max(minWidth, Number(cfg.cardMaxWidth) || DEFAULTS.cardMaxWidth);
+  const preferredMaxWidth = Math.max(minWidth, Number(cfg.cardMaxWidth) || DEFAULTS.cardMaxWidth);
+  const footerPaddingX = Math.max(0, Number(cfg.footerPaddingX) || DEFAULTS.footerPaddingX);
+  const hardMaxWidth = Math.max(preferredMaxWidth, REF_W - footerPaddingX * 2);
+  card.dataset.preferredMaxWidth = String(preferredMaxWidth);
+  card.dataset.hardMaxWidth = String(hardMaxWidth);
   card.style.minWidth = `${minWidth}px`;
-  card.style.maxWidth = `${maxWidth}px`;
-  card.style.width = `${maxWidth}px`;
+  card.style.maxWidth = `${hardMaxWidth}px`;
+  card.style.width = `${preferredMaxWidth}px`;
 
   const img = document.createElement("img");
   img.className = "tickerImage";
@@ -229,12 +233,40 @@ function tightenCardWidths(group) {
     const configuredMinWidth = Math.max(0, Math.round(parseFloat(card.style.minWidth) || card.offsetWidth || card.clientWidth || 0));
     const contentMinWidth = getCardContentMinWidth(card);
     const minWidth = Math.max(configuredMinWidth, contentMinWidth);
-    const maxWidth = Math.max(minWidth, Math.round(parseFloat(card.style.maxWidth) || card.offsetWidth || card.clientWidth || minWidth));
+    const preferredMaxWidth = Math.max(
+      minWidth,
+      Math.round(parseFloat(card.dataset.preferredMaxWidth) || parseFloat(card.style.width) || card.offsetWidth || card.clientWidth || minWidth),
+    );
+    const hardMaxWidth = Math.max(
+      preferredMaxWidth,
+      Math.round(parseFloat(card.dataset.hardMaxWidth) || parseFloat(card.style.maxWidth) || preferredMaxWidth),
+    );
 
-    card.style.width = `${maxWidth}px`;
+    let workingMaxWidth = preferredMaxWidth;
+    card.style.width = `${preferredMaxWidth}px`;
+
+    if (!canShrinkCard(card) && hardMaxWidth > preferredMaxWidth) {
+      let low = preferredMaxWidth;
+      let high = hardMaxWidth;
+      let expandedBest = hardMaxWidth;
+
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        card.style.width = `${mid}px`;
+        if (canShrinkCard(card)) {
+          expandedBest = mid;
+          high = mid - 1;
+        } else {
+          low = mid + 1;
+        }
+      }
+
+      workingMaxWidth = expandedBest;
+    }
+
     let low = minWidth;
-    let high = maxWidth;
-    let best = maxWidth;
+    let high = workingMaxWidth;
+    let best = workingMaxWidth;
 
     while (low <= high) {
       const mid = Math.floor((low + high) / 2);

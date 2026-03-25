@@ -255,7 +255,7 @@ body {
   font-size: var(--empty-font-size);
   line-height: 1.1;
   font-weight: 600;
-  color: var(--text-color);
+  color: #fff;
   white-space: nowrap;
 }
 
