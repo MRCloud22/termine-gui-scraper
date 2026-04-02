@@ -185,11 +185,26 @@ function buildPill(apt, fallbackImage) {
   return pill;
 }
 
+function isNoQrMode() {
+  const search = new URLSearchParams(window.location.search || "");
+  const rawHash = String(window.location.hash || "").replace(/^#/, "");
+  const hashParams = new URLSearchParams(rawHash);
+  const noQrValue = (search.get("noqr") ?? hashParams.get("noqr") ?? "").toLowerCase();
+  const modeValue = (search.get("mode") ?? hashParams.get("mode") ?? "").toLowerCase();
+  return (
+    search.has("noqr") ||
+    hashParams.has("noqr") ||
+    ["1", "true", "yes", "on"].includes(noQrValue) ||
+    modeValue === "noqr" ||
+    rawHash.toLowerCase() === "noqr"
+  );
+}
+
 async function main() {
   window.addEventListener("resize", updateScale);
   updateScale();
 
-  const noQrMode = new URLSearchParams(window.location.search).has("noqr");
+  const noQrMode = isNoQrMode();
 
   let custom = {};
   let appSettings = {};
