@@ -350,7 +350,7 @@ async function main() {
     noQrTextEl.style.fontWeight = String(noQrTextCfg.fontWeight ?? 600);
     noQrTextEl.style.textAlign = noQrTextCfg.align || "right";
     noQrTextEl.style.justifyContent = (noQrTextCfg.align || "right") === "left" ? "flex-start" : (noQrTextCfg.align || "right") === "center" ? "center" : "flex-end";
-    noQrTextEl.style.width = `${noQrTextCfg.width ?? qrCfg.size ?? 150}px`;
+    noQrTextEl.style.width = noQrTextCfg.width != null ? `${noQrTextCfg.width}px` : "auto";
     noQrTextEl.style.minHeight = `${noQrTextCfg.minHeight ?? qrCfg.size ?? 150}px`;
     noQrTextEl.style.maxWidth = `${noQrTextCfg.maxWidth ?? qrCfg.size ?? 150}px`;
     noQrTextEl.style.marginTop = `${noQrTextCfg.marginTop ?? 0}px`;
