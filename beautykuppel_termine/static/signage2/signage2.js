@@ -22,10 +22,13 @@ function fixText(value) {
 
 function normalizeCustom(custom) {
   const out = { ...(custom || {}) };
-  const keys = ["title", "subtitle", "listTitle", "emptyText", "qrLabel", "qrUrl"];
+  const keys = ["title", "subtitle", "listTitle", "emptyText", "qrLabel", "qrUrl", "noQrText"];
   for (const k of keys) out[k] = fixText(out[k]);
   if (out.promoConfig && typeof out.promoConfig === "object") {
     out.promoConfig = { ...out.promoConfig, text: fixText(out.promoConfig.text) };
+  }
+  if (out.noQrTextConfig && typeof out.noQrTextConfig === "object") {
+    out.noQrTextConfig = { ...out.noQrTextConfig };
   }
   return out;
 }
@@ -186,6 +189,8 @@ async function main() {
   window.addEventListener("resize", updateScale);
   updateScale();
 
+  const noQrMode = new URLSearchParams(window.location.search).has("noqr");
+
   let custom = {};
   let appSettings = {};
   let settingsSignature = "";
@@ -328,7 +333,33 @@ async function main() {
   // Footer/QR text
   const qrLabel = custom.qrLabel != null ? custom.qrLabel : "Infos & Buchung unter";
   const qrUrl = custom.qrUrl != null ? custom.qrUrl : "beautykuppel.de/termine";
-  $("qrText").innerHTML = `<span class="qrLabelText">${qrLabel}</span><strong class="qrUrlText">${qrUrl}</strong>`;
+  const qrTextEl = $("qrText");
+  const noQrTextEl = $("noQrText");
+  const noQrText = custom.noQrText != null ? custom.noQrText : "In diesem Bereich sind keine Handys erlaubt.";
+  const noQrTextCfg = custom.noQrTextConfig || {};
+  if (noQrMode) {
+    qrWrap.style.display = "none";
+    qrTextEl.style.display = "none";
+    noQrTextEl.style.display = "flex";
+    noQrTextEl.innerHTML = String(noQrText)
+      .replaceAll("\\n", "<br/>")
+      .replaceAll("\n", "<br/>");
+    noQrTextEl.style.fontSize = `${noQrTextCfg.fontSize ?? 28}px`;
+    noQrTextEl.style.color = noQrTextCfg.color || "#5E7367";
+    noQrTextEl.style.lineHeight = String(noQrTextCfg.lineHeight ?? 1.35);
+    noQrTextEl.style.fontWeight = String(noQrTextCfg.fontWeight ?? 600);
+    noQrTextEl.style.textAlign = noQrTextCfg.align || "right";
+    noQrTextEl.style.justifyContent = (noQrTextCfg.align || "right") === "left" ? "flex-start" : (noQrTextCfg.align || "right") === "center" ? "center" : "flex-end";
+    noQrTextEl.style.width = `${noQrTextCfg.width ?? qrCfg.size ?? 150}px`;
+    noQrTextEl.style.minHeight = `${noQrTextCfg.minHeight ?? qrCfg.size ?? 150}px`;
+    noQrTextEl.style.maxWidth = `${noQrTextCfg.maxWidth ?? qrCfg.size ?? 150}px`;
+    noQrTextEl.style.marginTop = `${noQrTextCfg.marginTop ?? 0}px`;
+  } else {
+    qrWrap.style.display = "block";
+    qrTextEl.style.display = "block";
+    noQrTextEl.style.display = "none";
+    qrTextEl.innerHTML = `<span class="qrLabelText">${qrLabel}</span><strong class="qrUrlText">${qrUrl}</strong>`;
+  }
 
   const emptyText = custom.emptyText != null ? custom.emptyText : "Aktuell sind keine freien Termine vorhanden.";
 

@@ -272,6 +272,17 @@ body {
     height: 150px;
 }
 
+.qrAltText {
+    display: none;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: right;
+    color: #5E7367;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: normal;
+}
+
 .qrInfoText {
     font-size: 22px;
     color: #5E7367;

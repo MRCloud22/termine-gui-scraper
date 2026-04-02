@@ -13,6 +13,17 @@
         "emptyText": "",
         "qrLabel": "Infos & Buchung unter",
         "qrUrl": "beautykuppel.de/termine",
+        "noQrText": "In diesem Bereich sind keine Handys erlaubt.\nInfos erhalten Sie direkt vor Ort.",
+        "noQrTextConfig": {
+            "fontSize": 28,
+            "color": "#5E7367",
+            "lineHeight": 1.35,
+            "fontWeight": 600,
+            "maxWidth": 220,
+            "minHeight": 150,
+            "align": "right",
+            "marginTop": 0
+        },
         "theme": "light",
         "logoConfig": {
             "size": 90,

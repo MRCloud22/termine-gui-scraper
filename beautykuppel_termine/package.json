@@ -1,6 +1,6 @@
 {
   "name": "beautykuppel-termine",
-  "version": "0.1.57",
+  "version": "0.1.58",
   "private": true,
   "type": "module",
   "description": "Lokale GUI + JSON Export fuer freie Behandlungstermine (Beauty-Kuppel Therme Bad Aibling Shop).",
